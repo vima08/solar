@@ -12,21 +12,47 @@ test("shows the complete interactive planet navigator", async ({ page }) => {
   await expect(page.locator("canvas")).toBeVisible();
 });
 
-test("flies to a planet and displays its educational fact", async ({ page }) => {
+test("flies to a planet and displays its educational fact", async ({
+  page,
+}) => {
   await page.getByRole("button", { name: "Земля", exact: true }).last().click();
   await expect(page.locator("#planet-name")).toHaveText("Земля");
   await expect(page.locator("#selected")).toHaveText("Земля");
-  await expect(page.locator("#planet-description strong")).toContainText("Океаны");
+  await expect(page.locator("#planet-description strong")).toContainText(
+    "Океаны",
+  );
 });
 
 test("controls simulation time, tour and home mode", async ({ page }) => {
   await page.locator("#fastBtn").click();
   await expect(page.locator("#timeScale")).toHaveText("10×");
   await page.locator("#pauseBtn").click();
-  await expect(page.locator("#pauseBtn")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("#pauseBtn")).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
   await page.locator("#tourBtn").click();
   await expect(page.locator("body")).toHaveClass(/tour-active/);
   await page.locator("#resetBtn").click();
   await expect(page.locator("#planet-name")).toHaveText("Солнечная система");
   await expect(page.locator("body")).not.toHaveClass(/tour-active/);
+});
+
+test("saves exploration progress and opens the quiz", async ({ page }) => {
+  await page.getByRole("button", { name: "Земля", exact: true }).last().click();
+  await expect(page.locator("#mission-count")).toHaveText("1 из 8");
+  await expect(page.locator('[data-planet="earth"]')).toHaveClass(/visited/);
+
+  await page.locator("#quizBtn").click();
+  await expect(page.locator("#quiz")).toBeVisible();
+  await page.getByRole("button", { name: "Земля", exact: true }).last().click();
+  await expect(page.locator("#quiz output")).toContainText("Верно");
+});
+
+test("provides tour and accessibility controls", async ({ page }) => {
+  await expect(page.locator("#tourDuration")).toHaveValue("5");
+  await page.locator("#contrastBtn").click();
+  await expect(page.locator("body")).toHaveClass(/high-contrast/);
+  await page.locator("#motionBtn").click();
+  await expect(page.locator("body")).toHaveClass(/reduce-motion/);
 });

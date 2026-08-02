@@ -1,0 +1,9 @@
+{
+  "name": "КосмоДром — Solar System Explorer",
+  "short_name": "КосмоДром",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#02040c",
+  "theme_color": "#071126",
+  "icons": []
+}

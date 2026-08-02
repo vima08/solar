@@ -1,9 +1,6 @@
 import * as THREE from "three";
 
-import {
-    STAR_COUNT,
-    STAR_FIELD_RADIUS
-} from "./constants.js";
+import { STAR_COUNT, STAR_FIELD_RADIUS } from "./constants.js";
 
 /*
     Генерирует красивое звездное небо.
@@ -15,153 +12,106 @@ import {
 */
 
 export function createStars() {
+  const group = new THREE.Group();
 
-    const group = new THREE.Group();
+  //----------------------------------------------------
+  // Основное звездное поле
+  //----------------------------------------------------
 
-    //----------------------------------------------------
-    // Основное звездное поле
-    //----------------------------------------------------
+  const geometry = new THREE.BufferGeometry();
 
-    const geometry = new THREE.BufferGeometry();
+  const positions = [];
+  const colors = [];
+  const sizes = [];
+  const phases = [];
+  const speeds = [];
 
-    const positions = [];
-    const colors = [];
-    const sizes = [];
-    const phases = [];
-    const speeds = [];
+  const colorChoices = [
+    new THREE.Color(0xffffff), // белые
 
-    const colorChoices = [
+    new THREE.Color(0xfff4d6), // желтые
 
-        new THREE.Color(0xffffff), // белые
+    new THREE.Color(0xcfe8ff), // голубые
 
-        new THREE.Color(0xfff4d6), // желтые
+    new THREE.Color(0xffd0d0), // красные
 
-        new THREE.Color(0xcfe8ff), // голубые
+    new THREE.Color(0xdde6ff), // холодные белые
+  ];
 
-        new THREE.Color(0xffd0d0), // красные
+  for (let i = 0; i < STAR_COUNT; i++) {
+    // равномерное распределение внутри сферы
 
-        new THREE.Color(0xdde6ff)  // холодные белые
+    const radius = STAR_FIELD_RADIUS * Math.cbrt(Math.random());
 
-    ];
+    const theta = Math.random() * Math.PI * 2;
 
-    for (let i = 0; i < STAR_COUNT; i++) {
+    const phi = Math.acos(2 * Math.random() - 1);
 
-        // равномерное распределение внутри сферы
+    let x = radius * Math.sin(phi) * Math.cos(theta);
 
-        const radius =
-            STAR_FIELD_RADIUS *
-            Math.cbrt(Math.random());
+    let y = radius * Math.cos(phi);
 
-        const theta =
-            Math.random() * Math.PI * 2;
+    let z = radius * Math.sin(phi) * Math.sin(theta);
 
-        const phi =
-            Math.acos(2 * Math.random() - 1);
+    //------------------------------------------------
+    // Формируем Млечный Путь:
+    // часть звезд притягиваем к плоскости XZ
+    //------------------------------------------------
 
-        let x =
-            radius *
-            Math.sin(phi) *
-            Math.cos(theta);
-
-        let y =
-            radius *
-            Math.cos(phi);
-
-        let z =
-            radius *
-            Math.sin(phi) *
-            Math.sin(theta);
-
-        //------------------------------------------------
-        // Формируем Млечный Путь:
-        // часть звезд притягиваем к плоскости XZ
-        //------------------------------------------------
-
-        if (Math.random() < 0.45) {
-
-            y *= 0.15;
-
-        }
-
-        positions.push(x, y, z);
-
-        const color =
-            colorChoices[
-                Math.floor(
-                    Math.random() * colorChoices.length
-                )
-            ];
-
-        colors.push(
-            color.r,
-            color.g,
-            color.b
-        );
-
-        sizes.push(
-            0.6 + Math.random() * 2.2
-        );
-        phases.push(Math.random() * Math.PI * 2);
-        speeds.push(0.35 + Math.random() * 1.25);
+    if (Math.random() < 0.45) {
+      y *= 0.15;
     }
 
-    geometry.setAttribute(
+    positions.push(x, y, z);
 
-        "position",
+    const color = colorChoices[Math.floor(Math.random() * colorChoices.length)];
 
-        new THREE.Float32BufferAttribute(
-            positions,
-            3
-        )
+    colors.push(color.r, color.g, color.b);
 
-    );
+    sizes.push(0.6 + Math.random() * 2.2);
+    phases.push(Math.random() * Math.PI * 2);
+    speeds.push(0.35 + Math.random() * 1.25);
+  }
 
-    geometry.setAttribute("phase", new THREE.Float32BufferAttribute(phases, 1));
-    geometry.setAttribute("speed", new THREE.Float32BufferAttribute(speeds, 1));
+  geometry.setAttribute(
+    "position",
 
-    geometry.setAttribute(
+    new THREE.Float32BufferAttribute(positions, 3),
+  );
 
-        "color",
+  geometry.setAttribute("phase", new THREE.Float32BufferAttribute(phases, 1));
+  geometry.setAttribute("speed", new THREE.Float32BufferAttribute(speeds, 1));
 
-        new THREE.Float32BufferAttribute(
-            colors,
-            3
-        )
+  geometry.setAttribute(
+    "color",
 
-    );
+    new THREE.Float32BufferAttribute(colors, 3),
+  );
 
-    geometry.setAttribute(
+  geometry.setAttribute(
+    "size",
 
-        "size",
+    new THREE.Float32BufferAttribute(sizes, 1),
+  );
 
-        new THREE.Float32BufferAttribute(
-            sizes,
-            1
-        )
+  //----------------------------------------------------
+  // Материал со своим шейдером
+  //----------------------------------------------------
 
-    );
+  const material = new THREE.ShaderMaterial({
+    vertexColors: true,
 
-    //----------------------------------------------------
-    // Материал со своим шейдером
-    //----------------------------------------------------
+    transparent: true,
 
-    const material = new THREE.ShaderMaterial({
+    depthWrite: false,
 
-        vertexColors: true,
+    blending: THREE.AdditiveBlending,
 
-        transparent: true,
+    uniforms: {
+      time: { value: 0 },
+    },
 
-        depthWrite: false,
-
-        blending: THREE.AdditiveBlending,
-
-        uniforms: {
-
-            time: { value: 0 }
-
-        },
-
-        vertexShader: `
+    vertexShader: `
 
 attribute float size;
 attribute float phase;
@@ -197,7 +147,7 @@ void main(){
 
 `,
 
-        fragmentShader: `
+    fragmentShader: `
 
 varying vec3 vColor;
 
@@ -223,107 +173,78 @@ void main(){
 
 }
 
-`
+`,
+  });
 
-    });
+  const stars = new THREE.Points(geometry, material);
 
-    const stars =
-        new THREE.Points(
-            geometry,
-            material
-        );
+  group.add(stars);
 
-    group.add(stars);
+  //----------------------------------------------------
+  // Несколько сверхярких звезд
+  //----------------------------------------------------
 
-    //----------------------------------------------------
-    // Несколько сверхярких звезд
-    //----------------------------------------------------
+  const brightGeometry = new THREE.BufferGeometry();
 
-    const brightGeometry =
-        new THREE.BufferGeometry();
+  const brightPositions = [];
 
-    const brightPositions = [];
+  for (let i = 0; i < 140; i++) {
+    const r = STAR_FIELD_RADIUS * (0.4 + Math.random() * 0.6);
 
-    for (let i = 0; i < 140; i++) {
+    const theta = Math.random() * Math.PI * 2;
 
-        const r =
-            STAR_FIELD_RADIUS *
-            (0.4 + Math.random() * 0.6);
+    const phi = Math.acos(2 * Math.random() - 1);
 
-        const theta =
-            Math.random() * Math.PI * 2;
+    brightPositions.push(
+      r * Math.sin(phi) * Math.cos(theta),
 
-        const phi =
-            Math.acos(2 * Math.random() - 1);
+      r * Math.cos(phi),
 
-        brightPositions.push(
-
-            r * Math.sin(phi) * Math.cos(theta),
-
-            r * Math.cos(phi),
-
-            r * Math.sin(phi) * Math.sin(theta)
-
-        );
-
-    }
-
-    brightGeometry.setAttribute(
-
-        "position",
-
-        new THREE.Float32BufferAttribute(
-
-            brightPositions,
-
-            3
-
-        )
-
+      r * Math.sin(phi) * Math.sin(theta),
     );
+  }
 
-    const brightMaterial =
-        new THREE.PointsMaterial({
+  brightGeometry.setAttribute(
+    "position",
 
-            color: 0xffffff,
+    new THREE.Float32BufferAttribute(
+      brightPositions,
 
-            size: 7,
+      3,
+    ),
+  );
 
-            transparent: true,
+  const brightMaterial = new THREE.PointsMaterial({
+    color: 0xffffff,
 
-            opacity: 0.9,
+    size: 7,
 
-            blending:
-                THREE.AdditiveBlending,
+    transparent: true,
 
-            depthWrite: false
+    opacity: 0.9,
 
-        });
+    blending: THREE.AdditiveBlending,
 
-    group.add(
+    depthWrite: false,
+  });
 
-        new THREE.Points(
+  group.add(
+    new THREE.Points(
+      brightGeometry,
 
-            brightGeometry,
+      brightMaterial,
+    ),
+  );
 
-            brightMaterial
+  //----------------------------------------------------
+  // Метод обновления
+  //----------------------------------------------------
 
-        )
+  group.update = function (time) {
+    material.uniforms.time.value = time.elapsed;
 
-    );
+    stars.rotation.y = time.elapsed * 0.003;
+  };
 
-    //----------------------------------------------------
-    // Метод обновления
-    //----------------------------------------------------
-
-    group.update = function (time) {
-
-        material.uniforms.time.value = time.elapsed;
-
-        stars.rotation.y = time.elapsed * 0.003;
-
-    };
-
-    return group;
-
+  return group;
 }

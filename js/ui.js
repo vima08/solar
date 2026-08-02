@@ -3,40 +3,137 @@ import { createNavigation } from "./navigation.js";
 import { createLabels } from "./labels.js";
 
 export function initUI(world) {
-    const name = document.getElementById("planet-name");
-    const description = document.getElementById("planet-description");
-    const selected = document.getElementById("selected");
-    const timeScale = document.getElementById("timeScale");
-    const pauseButton = document.getElementById("pauseBtn");
+  const name = document.getElementById("planet-name");
+  const description = document.getElementById("planet-description");
+  const selected = document.getElementById("selected");
+  const timeScale = document.getElementById("timeScale");
+  const pauseButton = document.getElementById("pauseBtn");
+  const visited = new Set(
+    JSON.parse(localStorage.getItem("visited-worlds") ?? "[]"),
+  );
+  let narrationEnabled = false;
 
-    function showInfo(config) {
-        name.textContent = config.name;
-        selected.textContent = config.name;
-        description.innerHTML = `${config.description}<strong>💡 ${config.fact}</strong>`;
+  function showInfo(config) {
+    name.textContent = config.name;
+    selected.textContent = config.name;
+    description.innerHTML = `${config.description}<strong>💡 ${config.fact}</strong>`;
+    if (config.id && config.id !== "sun") {
+      visited.add(config.id);
+      localStorage.setItem("visited-worlds", JSON.stringify([...visited]));
+      updateProgress();
     }
+    document.getElementById("announcement").textContent =
+      `Выбрано: ${config.name}. ${config.description}`;
+    if (narrationEnabled && "speechSynthesis" in window) {
+      speechSynthesis.cancel();
+      speechSynthesis.speak(
+        new SpeechSynthesisUtterance(
+          `${config.name}. ${config.description} ${config.fact}`,
+        ),
+      );
+    }
+  }
 
-    const navigation = createNavigation(world.camera, world.controls, world.bodies, showInfo);
-    const labels = createLabels(world.bodies, world.camera, world.renderer, (body) => navigation.flyTo(body));
-    world.navigation = navigation;
-    world.labels = labels;
+  const navigation = createNavigation(
+    world.camera,
+    world.controls,
+    world.bodies,
+    showInfo,
+  );
+  const labels = createLabels(
+    world.bodies,
+    world.camera,
+    world.renderer,
+    (body) => navigation.flyTo(body),
+  );
+  world.navigation = navigation;
+  world.labels = labels;
 
-    document.getElementById("planet-list").append(...world.bodies.slice(1).map((body) => {
-        const button = document.createElement("button");
-        button.textContent = body.config.name;
-        button.dataset.planet = body.config.id;
-        button.addEventListener("click", () => navigation.flyTo(body));
-        return button;
-    }));
+  const planetButtons = world.bodies.slice(1).map((body) => {
+    const button = document.createElement("button");
+    button.textContent = body.config.name;
+    button.dataset.planet = body.config.id;
+    button.addEventListener("click", () => navigation.flyTo(body));
+    return button;
+  });
+  document.getElementById("planet-list").append(...planetButtons);
 
-    pauseButton.addEventListener("click", () => {
-        togglePause();
-        const paused = getTime().paused;
-        pauseButton.textContent = paused ? "▶ Продолжить" : "⏸ Пауза";
-        pauseButton.setAttribute("aria-pressed", String(paused));
+  function updateProgress() {
+    const percent = Math.round((visited.size / planetButtons.length) * 100);
+    document.getElementById("mission-progress").style.width = `${percent}%`;
+    document.getElementById("mission-count").textContent =
+      `${visited.size} из ${planetButtons.length}`;
+    planetButtons.forEach((button) =>
+      button.classList.toggle("visited", visited.has(button.dataset.planet)),
+    );
+  }
+  updateProgress();
+
+  pauseButton.addEventListener("click", () => {
+    togglePause();
+    const paused = getTime().paused;
+    pauseButton.textContent = paused ? "▶ Продолжить" : "⏸ Пауза";
+    pauseButton.setAttribute("aria-pressed", String(paused));
+  });
+  [
+    ["slowBtn", 0.2, "0.2×"],
+    ["normalBtn", 1, "1×"],
+    ["fastBtn", 10, "10×"],
+  ].forEach(([id, scale, label]) => {
+    document.getElementById(id).addEventListener("click", () => {
+      setTimeScale(scale);
+      timeScale.textContent = label;
     });
-    [["slowBtn", .2, "0.2×"], ["normalBtn", 1, "1×"], ["fastBtn", 10, "10×"]].forEach(([id, scale, label]) => {
-        document.getElementById(id).addEventListener("click", () => { setTimeScale(scale); timeScale.textContent = label; });
+  });
+  document
+    .getElementById("tourBtn")
+    .addEventListener("click", () => navigation.startTour());
+  document
+    .getElementById("tourPrevBtn")
+    .addEventListener("click", () => navigation.stepTour(-1));
+  document
+    .getElementById("tourNextBtn")
+    .addEventListener("click", () => navigation.stepTour(1));
+  document
+    .getElementById("tourDuration")
+    .addEventListener("change", (event) =>
+      navigation.setTourDuration(Number(event.target.value)),
+    );
+  document
+    .getElementById("resetBtn")
+    .addEventListener("click", () => navigation.goHome());
+
+  document
+    .getElementById("contrastBtn")
+    .addEventListener("click", () =>
+      document.body.classList.toggle("high-contrast"),
+    );
+  document
+    .getElementById("motionBtn")
+    .addEventListener("click", () =>
+      document.body.classList.toggle("reduce-motion"),
+    );
+  document.getElementById("voiceBtn").addEventListener("click", (event) => {
+    narrationEnabled = !narrationEnabled;
+    event.currentTarget.setAttribute("aria-pressed", String(narrationEnabled));
+  });
+  setupQuiz();
+}
+
+function setupQuiz() {
+  const dialog = document.getElementById("quiz");
+  document
+    .getElementById("quizBtn")
+    .addEventListener("click", () => dialog.showModal());
+  dialog
+    .querySelector(".close-quiz")
+    .addEventListener("click", () => dialog.close());
+  dialog.querySelectorAll("[data-answer]").forEach((button) => {
+    button.addEventListener("click", () => {
+      dialog.querySelector("output").textContent =
+        button.dataset.answer === "earth"
+          ? "Верно! Землю называют голубой планетой. 🏅"
+          : "Почти! Подсказка: на ней есть океаны.";
     });
-    document.getElementById("tourBtn").addEventListener("click", () => navigation.startTour());
-    document.getElementById("resetBtn").addEventListener("click", () => navigation.goHome());
+  });
 }

@@ -1,0 +1,398 @@
+:root {
+  --blue: #63d9ff;
+  --violet: #8c78ff;
+  --panel: rgba(8, 16, 38, 0.78);
+  --line: rgba(136, 202, 255, 0.22);
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #02040c;
+  color: #fff;
+  font-family: Inter, "Segoe UI", sans-serif;
+}
+button {
+  font: inherit;
+}
+#scene-container {
+  position: fixed;
+  inset: 0;
+}
+canvas {
+  display: block;
+}
+#labels {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.space-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: auto;
+  border: 1px solid rgba(131, 225, 255, 0.45);
+  border-radius: 999px;
+  padding: 6px 11px;
+  color: #eafaff;
+  background: rgba(5, 14, 34, 0.78);
+  box-shadow: 0 0 18px rgba(74, 193, 255, 0.18);
+  font-size: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: 0.2s;
+  translate: -50% -155%;
+}
+.space-label:hover {
+  background: #2872bc;
+  scale: 1.08;
+}
+.space-label[hidden] {
+  display: none;
+}
+header {
+  position: fixed;
+  top: 18px;
+  left: 22px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 5;
+}
+.logo-mark {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #784dff, #21cdeb);
+  box-shadow: 0 0 28px #337bdc88;
+  font-size: 26px;
+}
+.brand b {
+  display: block;
+  font-size: 21px;
+  letter-spacing: 0.3px;
+}
+.brand small {
+  color: #8fc9e7;
+}
+.glass {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.3);
+}
+#stats {
+  position: fixed;
+  right: 20px;
+  top: 20px;
+  padding: 12px 18px;
+  border-radius: 18px;
+  display: flex;
+  gap: 18px;
+  font-size: 12px;
+  color: #94b5ce;
+  z-index: 5;
+}
+#stats b {
+  display: block;
+  margin-top: 3px;
+  color: #fff;
+  font-size: 14px;
+}
+#mission {
+  position: fixed;
+  left: 20px;
+  top: 92px;
+  width: 275px;
+  padding: 14px;
+  border-radius: 18px;
+  z-index: 5;
+}
+#mission p {
+  margin: 0;
+  color: #9bb7d0;
+  font-size: 12px;
+}
+#mission strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 14px;
+}
+.progress {
+  height: 5px;
+  background: #17284b;
+  border-radius: 5px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+.progress i {
+  display: block;
+  width: 32%;
+  height: 100%;
+  background: linear-gradient(90deg, #775cff, #31d4ef);
+}
+#planet-panel {
+  position: fixed;
+  left: 20px;
+  bottom: 108px;
+  width: 330px;
+  padding: 20px;
+  border-radius: 22px;
+  z-index: 5;
+}
+#planet-panel .eyebrow {
+  font-size: 11px;
+  color: var(--blue);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+#planet-panel h2 {
+  margin: 5px 0 9px;
+  font-size: 27px;
+}
+#planet-description {
+  color: #bfd0df;
+  font-size: 14px;
+  line-height: 1.5;
+}
+#planet-description strong {
+  display: block;
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(65, 119, 181, 0.16);
+  color: #e7f8ff;
+  font-size: 12px;
+}
+#planet-nav {
+  position: fixed;
+  right: 20px;
+  top: 92px;
+  width: 155px;
+  padding: 12px;
+  border-radius: 20px;
+  z-index: 5;
+}
+#planet-nav h3 {
+  font-size: 11px;
+  color: #8fb5d0;
+  margin: 0 4px 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+#planet-list {
+  display: grid;
+  gap: 4px;
+}
+#planet-list button {
+  border: 0;
+  color: #dbeeff;
+  background: transparent;
+  text-align: left;
+  border-radius: 10px;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+#planet-list button:hover {
+  background: linear-gradient(90deg, #654de077, #1bbad855);
+  color: #fff;
+}
+#controls {
+  position: fixed;
+  left: 50%;
+  bottom: 22px;
+  translate: -50% 0;
+  display: flex;
+  gap: 7px;
+  padding: 9px;
+  border-radius: 20px;
+  z-index: 8;
+  white-space: nowrap;
+}
+#controls button {
+  border: 1px solid transparent;
+  color: #e9f6ff;
+  background: #17233d;
+  border-radius: 13px;
+  padding: 11px 14px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+#controls button:hover {
+  translate: 0 -2px;
+  background: #315b9f;
+  border-color: #65d9ff;
+}
+.tour-active #tourBtn {
+  background: linear-gradient(135deg, #7554e8, #159fc4);
+  box-shadow: 0 0 18px #36b9e877;
+}
+#hint {
+  position: fixed;
+  left: 50%;
+  bottom: 84px;
+  translate: -50%;
+  color: #7895ad;
+  font-size: 11px;
+  white-space: nowrap;
+}
+#loading {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  background: radial-gradient(circle, #122458, #02040c 60%);
+  z-index: 100;
+}
+.spinner {
+  width: 68px;
+  height: 68px;
+  margin: auto;
+  border: 5px solid #182957;
+  border-top-color: #63dcff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+#loading p {
+  letter-spacing: 2px;
+  color: #bcecff;
+}
+@keyframes spin {
+  to {
+    rotate: 360deg;
+  }
+}
+@media (max-width: 800px) {
+  #mission,
+  #stats,
+  #hint {
+    display: none;
+  }
+  #planet-nav {
+    top: 82px;
+    right: 10px;
+    width: 125px;
+  }
+  #planet-panel {
+    left: 10px;
+    bottom: 100px;
+    width: 270px;
+    padding: 14px;
+  }
+  #controls {
+    width: calc(100% - 16px);
+    overflow: auto;
+    justify-content: start;
+    bottom: 10px;
+  }
+  header {
+    left: 12px;
+    top: 12px;
+  }
+  .brand small {
+    display: none;
+  }
+}
+
+.skip-link {
+  position: fixed;
+  left: 12px;
+  top: -60px;
+  z-index: 200;
+  padding: 10px;
+  color: #fff;
+  background: #000;
+}
+.skip-link:focus {
+  top: 12px;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+#planet-list button.visited::after {
+  content: " ✓";
+  color: #65e6ad;
+}
+.duration {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 5px;
+  color: #9eb9cf;
+  font-size: 11px;
+}
+.duration select {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: #fff;
+  background: #17233d;
+}
+#quiz {
+  width: min(440px, calc(100% - 30px));
+  border-radius: 24px;
+  color: #fff;
+  text-align: center;
+}
+#quiz::backdrop {
+  background: rgba(0, 3, 12, 0.78);
+  backdrop-filter: blur(7px);
+}
+#quiz button {
+  margin: 5px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 16px;
+  color: #fff;
+  background: #1b315a;
+  cursor: pointer;
+}
+#quiz .close-quiz {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  border: 0;
+  background: transparent;
+  font-size: 24px;
+}
+#quiz output {
+  display: block;
+  min-height: 24px;
+  margin-top: 16px;
+  color: #7de7ff;
+}
+.high-contrast {
+  --panel: rgba(0, 0, 0, 0.96);
+  --line: #fff;
+}
+.high-contrast button {
+  outline: 1px solid #fff;
+}
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  scroll-behavior: auto !important;
+  transition-duration: 0.01ms !important;
+  animation-duration: 0.01ms !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

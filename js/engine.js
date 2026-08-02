@@ -1,120 +1,45 @@
 import * as THREE from "three";
-
-import {
-    updateTime,
-    getTime
-} from "./time.js";
-
-import {
-    updateAll
-} from "./updatables.js";
-
+import { updateTime, getTime } from "./time.js";
+import { updateAll } from "./updatables.js";
 
 export function createEngine({
-
-    scene,
-    camera,
-    renderer,
-    controls,
-    navigation,
-    labels
-
+  scene,
+  camera,
+  renderer,
+  controls,
+  navigation,
+  labels,
 }) {
+  const clock = new THREE.Clock();
+  const fpsElement = document.getElementById("fps");
+  let frameCount = 0;
+  let lastFpsUpdate = performance.now();
 
+  function animate() {
+    requestAnimationFrame(animate);
+    const delta = clock.getDelta();
+    updateTime(delta);
+    controls.update();
+    navigation?.update();
+    updateAll(getTime(), delta);
+    labels?.update();
+    renderer.render(scene, camera);
+    updateFpsCounter();
+  }
 
-    const clock = new THREE.Clock();
+  function updateFpsCounter() {
+    frameCount += 1;
+    const now = performance.now();
+    if (now - lastFpsUpdate < 1000) return;
+    fpsElement.textContent = String(frameCount);
+    frameCount = 0;
+    lastFpsUpdate = now;
+  }
 
-
-    const fpsElement =
-        document.getElementById("fps");
-
-
-    let frameCounter = 0;
-
-    let fpsTimer =
-        performance.now();
-
-
-
-    function animate(){
-
-        requestAnimationFrame(animate);
-
-
-        const delta =
-            clock.getDelta();
-
-
-        updateTime(delta);
-
-
-        const time =
-            getTime();
-
-        // console.log(time);
-
-        controls.update();
-
-        navigation?.update();
-
-
-        updateAll(
-            time,
-            delta
-        );
-
-        labels?.update();
-
-
-        renderer.render(
-            scene,
-            camera
-        );
-
-
-        updateFPS();
-
-    }
-
-
-
-    function updateFPS(){
-
-        frameCounter++;
-
-
-        const now =
-            performance.now();
-
-
-        if(now - fpsTimer > 1000){
-
-            fpsElement.textContent =
-                frameCounter;
-
-
-            frameCounter = 0;
-
-
-            fpsTimer = now;
-
-        }
-
-    }
-
-
-
-    return {
-
-        start(){
-
-            animate();
-            document
-                .getElementById("loading")
-                .style.display = "none";
-
-        }
-
-    };
-
+  return {
+    start() {
+      animate();
+      document.getElementById("loading").style.display = "none";
+    },
+  };
 }

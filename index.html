@@ -1,41 +1,101 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#071126">
-  <title>КосмоДром — исследуй Солнечную систему</title>
-  <style>
-    :root{--blue:#63d9ff;--violet:#8c78ff;--panel:rgba(8,16,38,.78);--line:rgba(136,202,255,.22)}
-    *{box-sizing:border-box} html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#02040c;color:#fff;font-family:Inter,"Segoe UI",sans-serif} button{font:inherit}
-    #scene-container{position:fixed;inset:0}canvas{display:block} #labels{position:fixed;inset:0;pointer-events:none;overflow:hidden}
-    .space-label{position:absolute;left:0;top:0;pointer-events:auto;border:1px solid rgba(131,225,255,.45);border-radius:999px;padding:6px 11px;color:#eafaff;background:rgba(5,14,34,.78);box-shadow:0 0 18px rgba(74,193,255,.18);font-size:12px;white-space:nowrap;cursor:pointer;transition:.2s;translate:-50% -155%}
-    .space-label:hover{background:#2872bc;scale:1.08}.space-label[hidden]{display:none}
-    header{position:fixed;top:18px;left:22px;display:flex;align-items:center;gap:12px;z-index:5}.logo-mark{display:grid;place-items:center;width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,#784dff,#21cdeb);box-shadow:0 0 28px #337bdc88;font-size:26px}.brand b{display:block;font-size:21px;letter-spacing:.3px}.brand small{color:#8fc9e7}
-    .glass{border:1px solid var(--line);background:var(--panel);backdrop-filter:blur(16px);box-shadow:0 14px 40px rgba(0,0,0,.3)}
-    #stats{position:fixed;right:20px;top:20px;padding:12px 18px;border-radius:18px;display:flex;gap:18px;font-size:12px;color:#94b5ce;z-index:5}#stats b{display:block;margin-top:3px;color:#fff;font-size:14px}
-    #mission{position:fixed;left:20px;top:92px;width:275px;padding:14px;border-radius:18px;z-index:5}#mission p{margin:0;color:#9bb7d0;font-size:12px}#mission strong{display:block;margin-top:5px;font-size:14px}.progress{height:5px;background:#17284b;border-radius:5px;margin-top:10px;overflow:hidden}.progress i{display:block;width:32%;height:100%;background:linear-gradient(90deg,#775cff,#31d4ef)}
-    #planet-panel{position:fixed;left:20px;bottom:108px;width:330px;padding:20px;border-radius:22px;z-index:5}#planet-panel .eyebrow{font-size:11px;color:var(--blue);letter-spacing:2px;text-transform:uppercase}#planet-panel h2{margin:5px 0 9px;font-size:27px}#planet-description{color:#bfd0df;font-size:14px;line-height:1.5}#planet-description strong{display:block;margin-top:12px;padding:10px;border-radius:12px;background:rgba(65,119,181,.16);color:#e7f8ff;font-size:12px}
-    #planet-nav{position:fixed;right:20px;top:92px;width:155px;padding:12px;border-radius:20px;z-index:5}#planet-nav h3{font-size:11px;color:#8fb5d0;margin:0 4px 8px;text-transform:uppercase;letter-spacing:1px}#planet-list{display:grid;gap:4px}#planet-list button{border:0;color:#dbeeff;background:transparent;text-align:left;border-radius:10px;padding:8px 10px;cursor:pointer}#planet-list button:hover{background:linear-gradient(90deg,#654de077,#1bbad855);color:#fff}
-    #controls{position:fixed;left:50%;bottom:22px;translate:-50% 0;display:flex;gap:7px;padding:9px;border-radius:20px;z-index:8;white-space:nowrap}#controls button{border:1px solid transparent;color:#e9f6ff;background:#17233d;border-radius:13px;padding:11px 14px;cursor:pointer;transition:.2s}#controls button:hover{translate:0 -2px;background:#315b9f;border-color:#65d9ff}.tour-active #tourBtn{background:linear-gradient(135deg,#7554e8,#159fc4);box-shadow:0 0 18px #36b9e877}
-    #hint{position:fixed;left:50%;bottom:84px;translate:-50%;color:#7895ad;font-size:11px;white-space:nowrap}
-    #loading{position:fixed;inset:0;display:grid;place-content:center;text-align:center;background:radial-gradient(circle,#122458,#02040c 60%);z-index:100}.spinner{width:68px;height:68px;margin:auto;border:5px solid #182957;border-top-color:#63dcff;border-radius:50%;animation:spin 1s linear infinite}#loading p{letter-spacing:2px;color:#bcecff}@keyframes spin{to{rotate:360deg}}
-    @media(max-width:800px){#mission,#stats,#hint{display:none}#planet-nav{top:82px;right:10px;width:125px}#planet-panel{left:10px;bottom:100px;width:270px;padding:14px}#controls{width:calc(100% - 16px);overflow:auto;justify-content:start;bottom:10px}header{left:12px;top:12px}.brand small{display:none}}
-  </style>
-</head>
-<body>
-  <div id="scene-container"></div><div id="labels" aria-label="Подписи космических объектов"></div>
-  <div id="loading"><div><div class="spinner"></div><p>ГОТОВИМ РАКЕТУ...</p></div></div>
-  <header><span class="logo-mark">🚀</span><span class="brand"><b>КосмоДром</b><small>Солнечная система для юных исследователей</small></span></header>
-  <aside id="stats" class="glass"><span>КАДРЫ/СЕК<b id="fps">0</b></span><span>СКОРОСТЬ<b id="timeScale">1×</b></span><span>ЦЕЛЬ<b id="selected">Солнце</b></span></aside>
-  <aside id="mission" class="glass"><p>⭐ МИССИЯ ИССЛЕДОВАТЕЛЯ</p><strong>Посети все восемь планет</strong><div class="progress"><i></i></div></aside>
-  <aside id="planet-nav" class="glass"><h3>Куда летим?</h3><div id="planet-list"></div></aside>
-  <section id="planet-panel" class="glass"><span class="eyebrow">Бортовой компьютер</span><h2 id="planet-name">Солнце</h2><div id="planet-description">Добро пожаловать в нашу Солнечную систему!<strong>💡 Выбери планету справа или включи экскурсию.</strong></div></section>
-  <div id="hint">🖱 Вращай мышью · приближай колёсиком · нажимай на подписи</div>
-  <nav id="controls" class="glass" aria-label="Управление полётом">
-    <button id="pauseBtn" aria-pressed="false">⏸ Пауза</button><button id="slowBtn">🐢 0.2×</button><button id="normalBtn">▶ 1×</button><button id="fastBtn">⚡ 10×</button><button id="tourBtn">🛰 Экскурсия</button><button id="resetBtn">🏠 Домой</button>
-  </nav>
-  <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.167.1/build/three.module.js","three/addons/":"https://unpkg.com/three@0.167.1/examples/jsm/"}}</script>
-  <script type="module" src="./js/main.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#071126" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <title>КосмоДром — исследуй Солнечную систему</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#controls">К управлению</a>
+    <div id="scene-container"></div>
+    <div id="labels" aria-label="Подписи космических объектов"></div>
+    <p id="announcement" class="sr-only" aria-live="polite"></p>
+    <div id="loading">
+      <div>
+        <div class="spinner"></div>
+        <p>ГОТОВИМ РАКЕТУ...</p>
+      </div>
+    </div>
+    <header>
+      <span class="logo-mark">🚀</span
+      ><span class="brand"
+        ><b>КосмоДром</b
+        ><small>Солнечная система для юных исследователей</small></span
+      >
+    </header>
+    <aside id="stats" class="glass">
+      <span>КАДРЫ/СЕК<b id="fps">0</b></span
+      ><span>СКОРОСТЬ<b id="timeScale">1×</b></span
+      ><span>ЦЕЛЬ<b id="selected">Солнце</b></span>
+    </aside>
+    <aside id="mission" class="glass">
+      <p>⭐ МИССИЯ ИССЛЕДОВАТЕЛЯ</p>
+      <strong
+        >Посети все восемь планет ·
+        <span id="mission-count">0 из 8</span></strong
+      >
+      <div class="progress"><i id="mission-progress"></i></div>
+    </aside>
+    <aside id="planet-nav" class="glass">
+      <h3>Куда летим?</h3>
+      <div id="planet-list"></div>
+    </aside>
+    <section id="planet-panel" class="glass">
+      <span class="eyebrow">Бортовой компьютер</span>
+      <h2 id="planet-name">Солнце</h2>
+      <div id="planet-description">
+        Добро пожаловать в нашу Солнечную систему!<strong
+          >💡 Выбери планету справа или включи экскурсию.</strong
+        >
+      </div>
+    </section>
+    <div id="hint">
+      🖱 Вращай мышью · приближай колёсиком · нажимай на подписи
+    </div>
+    <nav id="controls" class="glass" aria-label="Управление полётом">
+      <button id="pauseBtn" aria-pressed="false">⏸ Пауза</button
+      ><button id="slowBtn">🐢 0.2×</button><button id="normalBtn">▶ 1×</button
+      ><button id="fastBtn">⚡ 10×</button
+      ><button id="tourBtn">🛰 Экскурсия</button
+      ><button id="tourPrevBtn" title="Предыдущая остановка">‹</button
+      ><button id="tourNextBtn" title="Следующая остановка">›</button
+      ><label class="duration"
+        >Остановка
+        <select id="tourDuration">
+          <option value="3">3 с</option>
+          <option value="5" selected>5 с</option>
+          <option value="8">8 с</option>
+        </select></label
+      ><button id="voiceBtn" aria-pressed="false" title="Озвучка">🔊</button
+      ><button id="quizBtn">❓ Викторина</button
+      ><button id="contrastBtn" title="Повышенный контраст">◐</button
+      ><button id="motionBtn" title="Уменьшить движение">〰</button
+      ><button id="resetBtn">🏠 Домой</button>
+    </nav>
+    <dialog id="quiz" class="glass">
+      <form method="dialog">
+        <button class="close-quiz" aria-label="Закрыть">×</button>
+      </form>
+      <p>МИНИ-ЗАДАНИЕ</p>
+      <h2>Какую планету называют голубой?</h2>
+      <div>
+        <button data-answer="mars">Марс</button
+        ><button data-answer="earth">Земля</button
+        ><button data-answer="saturn">Сатурн</button>
+      </div>
+      <output aria-live="polite"></output>
+    </dialog>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.167.1/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.167.1/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module" src="./js/main.js"></script>
+  </body>
 </html>

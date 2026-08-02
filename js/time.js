@@ -1,62 +1,22 @@
-// =======================================
-// time.js
-//
-// Подсистема игрового времени.
-// Всё, что движется в нашей Вселенной,
-// должно использовать именно это время,
-// а не THREE.Clock напрямую.
-// =======================================
-
-const state = {
-
-    elapsed: 0,
-
-    delta: 0,
-
-    scale: 1,
-
-    paused: false
-
-};
+const state = { elapsed: 0, delta: 0, scale: 1, paused: false };
 
 export function updateTime(realDelta) {
-
-    state.delta = realDelta;
-
-    if (!state.paused) {
-
-        state.elapsed += realDelta * state.scale;
-
-    }
-
+  state.delta = realDelta;
+  if (!state.paused) state.elapsed += realDelta * state.scale;
 }
 
 export function getTime() {
-
-    return state;
-
+  return state;
 }
-
 export function pause() {
-
-    state.paused = true;
-
+  state.paused = true;
 }
-
 export function resume() {
-
-    state.paused = false;
-
+  state.paused = false;
 }
-
 export function togglePause() {
-
-    state.paused = !state.paused;
-
+  state.paused = !state.paused;
 }
-
 export function setTimeScale(scale) {
-
-    state.scale = scale;
-
+  state.scale = scale;
 }
