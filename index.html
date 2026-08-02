@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>🌌 Solar System Explorer</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            background: black;
+            font-family:
+                "Segoe UI",
+                Arial,
+                sans-serif;
+            color: white;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        /* ---------- Canvas ---------- */
+
+        #scene-container {
+            position: fixed;
+            inset: 0;
+        }
+
+        /* ---------- Top Left ---------- */
+
+        #logo {
+            position: absolute;
+            left: 20px;
+            top: 18px;
+
+            font-size: 30px;
+            font-weight: bold;
+
+            text-shadow:
+                0 0 8px cyan,
+                0 0 18px blue;
+        }
+
+        /* ---------- Top Right ---------- */
+
+        #stats {
+
+            position: absolute;
+
+            right: 20px;
+            top: 20px;
+
+            padding: 14px 18px;
+
+            border-radius: 14px;
+
+            background: rgba(0,0,0,.45);
+
+            backdrop-filter: blur(8px);
+
+            min-width: 220px;
+
+            line-height: 1.7;
+        }
+
+        #stats h3{
+            margin-bottom:8px;
+        }
+
+        /* ---------- Bottom ---------- */
+
+        #controls {
+
+            position:absolute;
+
+            bottom:20px;
+
+            left:50%;
+
+            transform:translateX(-50%);
+
+            display:flex;
+
+            flex-wrap:wrap;
+
+            justify-content:center;
+
+            gap:10px;
+
+            padding:14px;
+
+            border-radius:20px;
+
+            background:rgba(0,0,0,.45);
+
+            backdrop-filter:blur(10px);
+        }
+
+        button{
+
+            cursor:pointer;
+
+            color:white;
+
+            background:#1f2430;
+
+            border:none;
+
+            padding:12px 18px;
+
+            border-radius:12px;
+
+            transition:.25s;
+
+            font-size:15px;
+
+        }
+
+        button:hover{
+
+            background:#3d7cff;
+
+            transform:translateY(-2px);
+
+        }
+
+        button:active{
+
+            transform:scale(.97);
+
+        }
+
+        /* ---------- Planet info ---------- */
+
+        #planet-panel{
+
+            position:absolute;
+
+            left:20px;
+
+            bottom:20px;
+
+            width:320px;
+
+            padding:18px;
+
+            border-radius:18px;
+
+            background:rgba(0,0,0,.45);
+
+            backdrop-filter:blur(10px);
+
+            line-height:1.6;
+        }
+
+        #planet-panel h2{
+
+            margin-bottom:10px;
+
+        }
+
+        #planet-description{
+
+            color:#ddd;
+
+            font-size:15px;
+        }
+
+        /* ---------- Loading ---------- */
+
+        #loading{
+
+            position:absolute;
+
+            inset:0;
+
+            display:flex;
+
+            flex-direction:column;
+
+            justify-content:center;
+
+            align-items:center;
+
+            background:black;
+
+            z-index:100;
+
+        }
+
+        .spinner{
+
+            width:80px;
+            height:80px;
+
+            border-radius:50%;
+
+            border:8px solid #222;
+            border-top:8px solid cyan;
+
+            animation:spin 1s linear infinite;
+        }
+
+        #loading p{
+
+            margin-top:30px;
+            font-size:22px;
+
+            letter-spacing:2px;
+
+        }
+
+        @keyframes spin{
+
+            from{
+                transform:rotate(0deg);
+            }
+
+            to{
+                transform:rotate(360deg);
+            }
+
+        }
+
+        /* ---------- Footer ---------- */
+
+        #hint{
+
+            position:absolute;
+
+            bottom:110px;
+
+            width:100%;
+
+            text-align:center;
+
+            color:#ccc;
+
+            font-size:14px;
+
+            text-shadow:0 0 5px black;
+        }
+
+        a{
+            color:#8fdcff;
+        }
+
+        @media (max-width:900px){
+
+            #planet-panel{
+
+                width:250px;
+            }
+
+            #stats{
+
+                min-width:170px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div id="scene-container"></div>
+
+<div id="loading">
+
+    <div class="spinner"></div>
+
+    <p>Создаем Вселенную...</p>
+
+</div>
+
+<div id="logo">
+
+    🌌 Solar System Explorer
+
+</div>
+
+<div id="stats">
+
+    <h3>Статистика</h3>
+
+    <div>FPS: <span id="fps">0</span></div>
+
+    <div>Время: <span id="timeScale">1x</span></div>
+
+    <div>Объект: <span id="selected">Солнце</span></div>
+
+</div>
+
+<div id="planet-panel">
+
+    <h2 id="planet-name">
+        Солнце
+    </h2>
+
+    <div id="planet-description">
+
+        Добро пожаловать в нашу Солнечную систему!
+
+    </div>
+
+</div>
+
+<div id="hint">
+
+🖱 ЛКМ — вращение • ПКМ — перемещение • Колесико — приближение
+
+</div>
+
+<div id="controls">
+
+<button id="pauseBtn">
+⏸ Пауза
+</button>
+
+<button id="slowBtn">
+🐢 Медленнее
+</button>
+
+<button id="normalBtn">
+▶ Нормально
+</button>
+
+<button id="fastBtn">
+🚀 Быстрее
+</button>
+
+<button id="tourBtn">
+🛰 Экскурсия
+</button>
+
+<button id="resetBtn">
+🏠 Домой
+</button>
+
+</div>
+
+<script type="importmap">
+{
+    "imports": {
+        "three": "https://unpkg.com/three@0.167.1/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.167.1/examples/jsm/"
+    }
+}
+</script>
+
+<script type="module" src="./js/main.js"></script>
+
+</body>
+</html>
