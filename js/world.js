@@ -4,6 +4,7 @@ import { createSun } from "./sun.js";
 import { createPlanets } from "./planets.js";
 import { addUpdatable } from "./updatables.js";
 import { createAsteroidBelt } from "./asteroids.js";
+import { createComet } from "./comet.js";
 
 export function populateWorld(scene) {
   scene.add(new THREE.HemisphereLight(0x8fb9ff, 0x050611, 0.45));
@@ -18,6 +19,9 @@ export function populateWorld(scene) {
   const asteroidBelt = createAsteroidBelt();
   scene.add(asteroidBelt);
   addUpdatable(asteroidBelt);
+  const comet = createComet();
+  scene.add(comet);
+  addUpdatable(comet);
   const planets = createPlanets();
   scene.add(planets.group);
   return {
