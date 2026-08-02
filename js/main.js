@@ -8,9 +8,9 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     const world = await createScene();
 
-    const engine = createEngine(world);
+    initUI(world);
 
-    initUI();
+    const engine = createEngine(world);
 
     engine.start();
 

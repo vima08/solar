@@ -1,370 +1,41 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
-    <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0">
-
-    <title>🌌 Solar System Explorer</title>
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html,
-        body {
-            overflow: hidden;
-            width: 100%;
-            height: 100%;
-            background: black;
-            font-family:
-                "Segoe UI",
-                Arial,
-                sans-serif;
-            color: white;
-        }
-
-        canvas {
-            display: block;
-        }
-
-        /* ---------- Canvas ---------- */
-
-        #scene-container {
-            position: fixed;
-            inset: 0;
-        }
-
-        /* ---------- Top Left ---------- */
-
-        #logo {
-            position: absolute;
-            left: 20px;
-            top: 18px;
-
-            font-size: 30px;
-            font-weight: bold;
-
-            text-shadow:
-                0 0 8px cyan,
-                0 0 18px blue;
-        }
-
-        /* ---------- Top Right ---------- */
-
-        #stats {
-
-            position: absolute;
-
-            right: 20px;
-            top: 20px;
-
-            padding: 14px 18px;
-
-            border-radius: 14px;
-
-            background: rgba(0,0,0,.45);
-
-            backdrop-filter: blur(8px);
-
-            min-width: 220px;
-
-            line-height: 1.7;
-        }
-
-        #stats h3{
-            margin-bottom:8px;
-        }
-
-        /* ---------- Bottom ---------- */
-
-        #controls {
-
-            position:absolute;
-
-            bottom:20px;
-
-            left:50%;
-
-            transform:translateX(-50%);
-
-            display:flex;
-
-            flex-wrap:wrap;
-
-            justify-content:center;
-
-            gap:10px;
-
-            padding:14px;
-
-            border-radius:20px;
-
-            background:rgba(0,0,0,.45);
-
-            backdrop-filter:blur(10px);
-        }
-
-        button{
-
-            cursor:pointer;
-
-            color:white;
-
-            background:#1f2430;
-
-            border:none;
-
-            padding:12px 18px;
-
-            border-radius:12px;
-
-            transition:.25s;
-
-            font-size:15px;
-
-        }
-
-        button:hover{
-
-            background:#3d7cff;
-
-            transform:translateY(-2px);
-
-        }
-
-        button:active{
-
-            transform:scale(.97);
-
-        }
-
-        /* ---------- Planet info ---------- */
-
-        #planet-panel{
-
-            position:absolute;
-
-            left:20px;
-
-            bottom:20px;
-
-            width:320px;
-
-            padding:18px;
-
-            border-radius:18px;
-
-            background:rgba(0,0,0,.45);
-
-            backdrop-filter:blur(10px);
-
-            line-height:1.6;
-        }
-
-        #planet-panel h2{
-
-            margin-bottom:10px;
-
-        }
-
-        #planet-description{
-
-            color:#ddd;
-
-            font-size:15px;
-        }
-
-        /* ---------- Loading ---------- */
-
-        #loading{
-
-            position:absolute;
-
-            inset:0;
-
-            display:flex;
-
-            flex-direction:column;
-
-            justify-content:center;
-
-            align-items:center;
-
-            background:black;
-
-            z-index:100;
-
-        }
-
-        .spinner{
-
-            width:80px;
-            height:80px;
-
-            border-radius:50%;
-
-            border:8px solid #222;
-            border-top:8px solid cyan;
-
-            animation:spin 1s linear infinite;
-        }
-
-        #loading p{
-
-            margin-top:30px;
-            font-size:22px;
-
-            letter-spacing:2px;
-
-        }
-
-        @keyframes spin{
-
-            from{
-                transform:rotate(0deg);
-            }
-
-            to{
-                transform:rotate(360deg);
-            }
-
-        }
-
-        /* ---------- Footer ---------- */
-
-        #hint{
-
-            position:absolute;
-
-            bottom:110px;
-
-            width:100%;
-
-            text-align:center;
-
-            color:#ccc;
-
-            font-size:14px;
-
-            text-shadow:0 0 5px black;
-        }
-
-        a{
-            color:#8fdcff;
-        }
-
-        @media (max-width:900px){
-
-            #planet-panel{
-
-                width:250px;
-            }
-
-            #stats{
-
-                min-width:170px;
-            }
-
-        }
-
-    </style>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#071126">
+  <title>КосмоДром — исследуй Солнечную систему</title>
+  <style>
+    :root{--blue:#63d9ff;--violet:#8c78ff;--panel:rgba(8,16,38,.78);--line:rgba(136,202,255,.22)}
+    *{box-sizing:border-box} html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#02040c;color:#fff;font-family:Inter,"Segoe UI",sans-serif} button{font:inherit}
+    #scene-container{position:fixed;inset:0}canvas{display:block} #labels{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+    .space-label{position:absolute;left:0;top:0;pointer-events:auto;border:1px solid rgba(131,225,255,.45);border-radius:999px;padding:6px 11px;color:#eafaff;background:rgba(5,14,34,.78);box-shadow:0 0 18px rgba(74,193,255,.18);font-size:12px;white-space:nowrap;cursor:pointer;transition:.2s;translate:-50% -155%}
+    .space-label:hover{background:#2872bc;scale:1.08}.space-label[hidden]{display:none}
+    header{position:fixed;top:18px;left:22px;display:flex;align-items:center;gap:12px;z-index:5}.logo-mark{display:grid;place-items:center;width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,#784dff,#21cdeb);box-shadow:0 0 28px #337bdc88;font-size:26px}.brand b{display:block;font-size:21px;letter-spacing:.3px}.brand small{color:#8fc9e7}
+    .glass{border:1px solid var(--line);background:var(--panel);backdrop-filter:blur(16px);box-shadow:0 14px 40px rgba(0,0,0,.3)}
+    #stats{position:fixed;right:20px;top:20px;padding:12px 18px;border-radius:18px;display:flex;gap:18px;font-size:12px;color:#94b5ce;z-index:5}#stats b{display:block;margin-top:3px;color:#fff;font-size:14px}
+    #mission{position:fixed;left:20px;top:92px;width:275px;padding:14px;border-radius:18px;z-index:5}#mission p{margin:0;color:#9bb7d0;font-size:12px}#mission strong{display:block;margin-top:5px;font-size:14px}.progress{height:5px;background:#17284b;border-radius:5px;margin-top:10px;overflow:hidden}.progress i{display:block;width:32%;height:100%;background:linear-gradient(90deg,#775cff,#31d4ef)}
+    #planet-panel{position:fixed;left:20px;bottom:108px;width:330px;padding:20px;border-radius:22px;z-index:5}#planet-panel .eyebrow{font-size:11px;color:var(--blue);letter-spacing:2px;text-transform:uppercase}#planet-panel h2{margin:5px 0 9px;font-size:27px}#planet-description{color:#bfd0df;font-size:14px;line-height:1.5}#planet-description strong{display:block;margin-top:12px;padding:10px;border-radius:12px;background:rgba(65,119,181,.16);color:#e7f8ff;font-size:12px}
+    #planet-nav{position:fixed;right:20px;top:92px;width:155px;padding:12px;border-radius:20px;z-index:5}#planet-nav h3{font-size:11px;color:#8fb5d0;margin:0 4px 8px;text-transform:uppercase;letter-spacing:1px}#planet-list{display:grid;gap:4px}#planet-list button{border:0;color:#dbeeff;background:transparent;text-align:left;border-radius:10px;padding:8px 10px;cursor:pointer}#planet-list button:hover{background:linear-gradient(90deg,#654de077,#1bbad855);color:#fff}
+    #controls{position:fixed;left:50%;bottom:22px;translate:-50% 0;display:flex;gap:7px;padding:9px;border-radius:20px;z-index:8;white-space:nowrap}#controls button{border:1px solid transparent;color:#e9f6ff;background:#17233d;border-radius:13px;padding:11px 14px;cursor:pointer;transition:.2s}#controls button:hover{translate:0 -2px;background:#315b9f;border-color:#65d9ff}.tour-active #tourBtn{background:linear-gradient(135deg,#7554e8,#159fc4);box-shadow:0 0 18px #36b9e877}
+    #hint{position:fixed;left:50%;bottom:84px;translate:-50%;color:#7895ad;font-size:11px;white-space:nowrap}
+    #loading{position:fixed;inset:0;display:grid;place-content:center;text-align:center;background:radial-gradient(circle,#122458,#02040c 60%);z-index:100}.spinner{width:68px;height:68px;margin:auto;border:5px solid #182957;border-top-color:#63dcff;border-radius:50%;animation:spin 1s linear infinite}#loading p{letter-spacing:2px;color:#bcecff}@keyframes spin{to{rotate:360deg}}
+    @media(max-width:800px){#mission,#stats,#hint{display:none}#planet-nav{top:82px;right:10px;width:125px}#planet-panel{left:10px;bottom:100px;width:270px;padding:14px}#controls{width:calc(100% - 16px);overflow:auto;justify-content:start;bottom:10px}header{left:12px;top:12px}.brand small{display:none}}
+  </style>
 </head>
-
 <body>
-
-<div id="scene-container"></div>
-
-<div id="loading">
-
-    <div class="spinner"></div>
-
-    <p>Создаем Вселенную...</p>
-
-</div>
-
-<div id="logo">
-
-    🌌 Solar System Explorer
-
-</div>
-
-<div id="stats">
-
-    <h3>Статистика</h3>
-
-    <div>FPS: <span id="fps">0</span></div>
-
-    <div>Время: <span id="timeScale">1x</span></div>
-
-    <div>Объект: <span id="selected">Солнце</span></div>
-
-</div>
-
-<div id="planet-panel">
-
-    <h2 id="planet-name">
-        Солнце
-    </h2>
-
-    <div id="planet-description">
-
-        Добро пожаловать в нашу Солнечную систему!
-
-    </div>
-
-</div>
-
-<div id="hint">
-
-🖱 ЛКМ — вращение • ПКМ — перемещение • Колесико — приближение
-
-</div>
-
-<div id="controls">
-
-<button id="pauseBtn">
-⏸ Пауза
-</button>
-
-<button id="slowBtn">
-🐢 Медленнее
-</button>
-
-<button id="normalBtn">
-▶ Нормально
-</button>
-
-<button id="fastBtn">
-🚀 Быстрее
-</button>
-
-<button id="tourBtn">
-🛰 Экскурсия
-</button>
-
-<button id="resetBtn">
-🏠 Домой
-</button>
-
-</div>
-
-<script type="importmap">
-{
-    "imports": {
-        "three": "https://unpkg.com/three@0.167.1/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.167.1/examples/jsm/"
-    }
-}
-</script>
-
-<script type="module" src="./js/main.js"></script>
-
+  <div id="scene-container"></div><div id="labels" aria-label="Подписи космических объектов"></div>
+  <div id="loading"><div><div class="spinner"></div><p>ГОТОВИМ РАКЕТУ...</p></div></div>
+  <header><span class="logo-mark">🚀</span><span class="brand"><b>КосмоДром</b><small>Солнечная система для юных исследователей</small></span></header>
+  <aside id="stats" class="glass"><span>КАДРЫ/СЕК<b id="fps">0</b></span><span>СКОРОСТЬ<b id="timeScale">1×</b></span><span>ЦЕЛЬ<b id="selected">Солнце</b></span></aside>
+  <aside id="mission" class="glass"><p>⭐ МИССИЯ ИССЛЕДОВАТЕЛЯ</p><strong>Посети все восемь планет</strong><div class="progress"><i></i></div></aside>
+  <aside id="planet-nav" class="glass"><h3>Куда летим?</h3><div id="planet-list"></div></aside>
+  <section id="planet-panel" class="glass"><span class="eyebrow">Бортовой компьютер</span><h2 id="planet-name">Солнце</h2><div id="planet-description">Добро пожаловать в нашу Солнечную систему!<strong>💡 Выбери планету справа или включи экскурсию.</strong></div></section>
+  <div id="hint">🖱 Вращай мышью · приближай колёсиком · нажимай на подписи</div>
+  <nav id="controls" class="glass" aria-label="Управление полётом">
+    <button id="pauseBtn" aria-pressed="false">⏸ Пауза</button><button id="slowBtn">🐢 0.2×</button><button id="normalBtn">▶ 1×</button><button id="fastBtn">⚡ 10×</button><button id="tourBtn">🛰 Экскурсия</button><button id="resetBtn">🏠 Домой</button>
+  </nav>
+  <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.167.1/build/three.module.js","three/addons/":"https://unpkg.com/three@0.167.1/examples/jsm/"}}</script>
+  <script type="module" src="./js/main.js"></script>
 </body>
 </html>

@@ -15,7 +15,9 @@ export function createEngine({
     scene,
     camera,
     renderer,
-    controls
+    controls,
+    navigation,
+    labels
 
 }) {
 
@@ -53,11 +55,15 @@ export function createEngine({
 
         controls.update();
 
+        navigation?.update();
+
 
         updateAll(
             time,
             delta
         );
+
+        labels?.update();
 
 
         renderer.render(
