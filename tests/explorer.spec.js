@@ -56,3 +56,17 @@ test("provides tour and accessibility controls", async ({ page }) => {
   await page.locator("#motionBtn").click();
   await expect(page.locator("body")).toHaveClass(/reduce-motion/);
 });
+
+test("starts a saved expedition with cockpit instruments", async ({ page }) => {
+  await page.locator("#flightBtn").click();
+  await expect(page.locator("body")).toHaveClass(/flight-mode/);
+  await expect(page.locator("#flight-hud")).toBeVisible();
+  await page.locator("#cockpitBtn").click();
+  await expect(page.locator("body")).toHaveClass(/cockpit-mode/);
+  await page.keyboard.down("KeyW");
+  await page.waitForTimeout(300);
+  await page.keyboard.up("KeyW");
+  await expect(page.locator("#ship-fuel")).not.toHaveText("100%");
+  await page.locator("#missionAction").click();
+  await expect(page.locator("#active-mission")).toContainText("Юпитера");
+});
