@@ -43,6 +43,17 @@
       <h3>Куда летим?</h3>
       <div id="planet-list"></div>
     </aside>
+    <aside id="flight-hud" class="glass" aria-label="Приборы корабля">
+      <div class="hud-title"><span>КОРАБЛЬ «ИСКРА»</span><b id="flight-warning">Системы в норме</b></div>
+      <div class="gauges"><span>СКОРОСТЬ<b id="ship-speed">0.0 км/с</b></span><span>ДО ЦЕЛИ<b id="ship-distance">—</b></span><span>ТОПЛИВО<b id="ship-fuel">100%</b></span></div>
+      <div class="fuel"><i id="fuel-level"></i></div>
+      <div class="route"><span>◎ <b id="route-target">Земля</b></span><span id="route-eta">≈ 4 мин</span></div>
+      <p id="radio-message">ЦУП: связь установлена · субтитры включены</p>
+    </aside>
+    <aside id="expedition-panel" class="glass">
+      <span class="eyebrow">АКТИВНАЯ МИССИЯ</span><strong id="active-mission">Доставь зонд на Марс</strong>
+      <small>Образцы: <b id="sample-count">0</b> · второй пилот: навигатор</small><button id="missionAction">Следующая миссия →</button>
+    </aside>
     <section id="planet-panel" class="glass">
       <span class="eyebrow">Бортовой компьютер</span>
       <h2 id="planet-name">Солнце</h2>
@@ -71,10 +82,19 @@
         </select></label
       ><button id="voiceBtn" aria-pressed="false" title="Озвучка">🔊</button
       ><button id="quizBtn">❓ Викторина</button
+      ><button id="flightBtn" aria-pressed="false">🚀 Пилот</button
+      ><button id="cockpitBtn" aria-pressed="false">◉ Кабина</button
+      ><label class="mode"><input id="physicsMode" type="checkbox" /> Простой режим</label
+      ><button id="refuelBtn">⛽ Заправить</button
       ><button id="contrastBtn" title="Повышенный контраст">◐</button
       ><button id="motionBtn" title="Уменьшить движение">〰</button
       ><button id="resetBtn">🏠 Домой</button>
     </nav>
+    <details id="sound-panel" class="glass"><summary>♫ Звук</summary>
+      <label>Музыка <input id="musicVolume" data-channel="музыки" type="range" min="0" max="100" /></label>
+      <label>Двигатель <input id="engineVolume" data-channel="двигателя" type="range" min="0" max="100" /></label>
+    </details>
+    <div id="cockpit-frame" aria-hidden="true"><i></i><i></i><span>WASD · курс &nbsp; Q/E · высота</span></div>
     <dialog id="quiz" class="glass">
       <form method="dialog">
         <button class="close-quiz" aria-label="Закрыть">×</button>

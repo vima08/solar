@@ -9,6 +9,7 @@ export function createEngine({
   controls,
   navigation,
   labels,
+  expedition,
 }) {
   const clock = new THREE.Clock();
   const fpsElement = document.getElementById("fps");
@@ -23,6 +24,7 @@ export function createEngine({
     navigation?.update();
     updateAll(getTime(), delta);
     labels?.update();
+    expedition?.update(delta);
     renderer.render(scene, camera);
     updateFpsCounter();
   }

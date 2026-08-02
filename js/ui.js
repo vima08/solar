@@ -53,7 +53,10 @@ export function initUI(world) {
     const button = document.createElement("button");
     button.textContent = body.config.name;
     button.dataset.planet = body.config.id;
-    button.addEventListener("click", () => navigation.flyTo(body));
+    button.addEventListener("click", () => {
+      window.dispatchEvent(new CustomEvent("kosmodrom-target", { detail: body }));
+      navigation.flyTo(body);
+    });
     return button;
   });
   document.getElementById("planet-list").append(...planetButtons);
@@ -118,6 +121,18 @@ export function initUI(world) {
     event.currentTarget.setAttribute("aria-pressed", String(narrationEnabled));
   });
   setupQuiz();
+  setupAudio();
+}
+
+function setupAudio() {
+  const engine = document.getElementById("engineVolume");
+  const music = document.getElementById("musicVolume");
+  [engine, music].forEach((slider) => slider.addEventListener("input", () => {
+    localStorage.setItem(slider.id, slider.value);
+    document.getElementById("radio-message").textContent = `ЦУП: канал ${slider.dataset.channel} настроен на ${slider.value}%`;
+  }));
+  engine.value = localStorage.getItem("engineVolume") ?? 55;
+  music.value = localStorage.getItem("musicVolume") ?? 30;
 }
 
 function setupQuiz() {

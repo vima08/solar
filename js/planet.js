@@ -28,6 +28,22 @@ export function createPlanet(config) {
       }),
     );
     sphere.add(atmosphere);
+    const clouds = new THREE.Mesh(
+      new THREE.SphereGeometry(config.radius * 1.025, 32, 32),
+      new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.12, roughness: 1 }),
+    );
+    clouds.scale.y = 0.98;
+    clouds.userData.clouds = true;
+    sphere.add(clouds);
+  }
+
+  if (config.id === "mars") {
+    for (const pole of [-1, 1]) {
+      const cap = new THREE.Mesh(new THREE.SphereGeometry(config.radius * 0.38, 20, 12), new THREE.MeshStandardMaterial({ color: 0xf4eee5, roughness: 0.9 }));
+      cap.position.y = pole * config.radius * 0.86;
+      cap.scale.y = 0.18;
+      sphere.add(cap);
+    }
   }
 
   if (config.rings) {
@@ -71,6 +87,8 @@ export function createPlanet(config) {
   planet.update = (time) => {
     orbit.rotation.y = time.elapsed * config.orbitSpeed * 0.12;
     sphere.rotation.y = time.elapsed * config.rotationSpeed;
+    const clouds = sphere.children.find((child) => child.userData.clouds);
+    if (clouds) clouds.rotation.y = time.elapsed * 0.04;
     moons.forEach(({ pivot, speed }) => {
       pivot.rotation.y = time.elapsed * speed;
     });
