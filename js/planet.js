@@ -1,12 +1,14 @@
 import * as THREE from "three";
 import { COLORS } from "./constants.js";
+import { getPlanetTexture } from "./planet-textures.js";
 
 export function createPlanet(config) {
   const planet = new THREE.Group();
   const orbit = new THREE.Group();
   const geometry = new THREE.SphereGeometry(config.radius, 48, 48);
   const material = new THREE.MeshStandardMaterial({
-    color: config.color,
+    color: 0xffffff,
+    map: getPlanetTexture(config.id),
     roughness: 0.72,
     metalness: 0.04,
   });
