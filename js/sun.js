@@ -28,6 +28,7 @@ export function createSun(){
             geometry,
             material
         );
+    sphere.name = "sun";
         
     sun.add(sphere);
 
@@ -40,6 +41,7 @@ export function createSun(){
 
     sun.add(light);
 
+    sun.userData.sphere = sphere;
     return sun;
 
 }

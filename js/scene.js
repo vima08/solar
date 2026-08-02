@@ -1,9 +1,5 @@
 import * as THREE from "three";
 
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-
-import { addUpdatable, updateAll } from "./updatables.js";
-
 import { createRenderer } from "./renderer.js";
 
 import { createCamera } from "./camera.js";
@@ -15,17 +11,6 @@ import { setupResize } from "./resize.js";
 import { populateWorld } from "./world.js";
 
 
-import {
-
-    CAMERA_FAR,
-    CAMERA_FOV,
-    CAMERA_NEAR,
-    CAMERA_START
-
-} from "./constants.js";
-
-import { createStars } from "./stars.js";
-
 export async function createScene() {
 
     //---------------------------------
@@ -36,7 +21,7 @@ export async function createScene() {
 
     scene.background = new THREE.Color(0x000000);
 
-    populateWorld(scene);
+    const world = populateWorld(scene);
 
     //---------------------------------
     // Camera
@@ -75,7 +60,8 @@ export async function createScene() {
         scene,
         camera,
         renderer,
-        controls
+        controls,
+        bodies: world.bodies
 
     };
 

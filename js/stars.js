@@ -27,6 +27,8 @@ export function createStars() {
     const positions = [];
     const colors = [];
     const sizes = [];
+    const phases = [];
+    const speeds = [];
 
     const colorChoices = [
 
@@ -99,6 +101,8 @@ export function createStars() {
         sizes.push(
             0.6 + Math.random() * 2.2
         );
+        phases.push(Math.random() * Math.PI * 2);
+        speeds.push(0.35 + Math.random() * 1.25);
     }
 
     geometry.setAttribute(
@@ -111,6 +115,9 @@ export function createStars() {
         )
 
     );
+
+    geometry.setAttribute("phase", new THREE.Float32BufferAttribute(phases, 1));
+    geometry.setAttribute("speed", new THREE.Float32BufferAttribute(speeds, 1));
 
     geometry.setAttribute(
 
@@ -157,6 +164,8 @@ export function createStars() {
         vertexShader: `
 
 attribute float size;
+attribute float phase;
+attribute float speed;
 
 varying vec3 vColor;
 
@@ -171,7 +180,7 @@ void main(){
         vec4(position,1.0);
 
     float pulse =
-        sin(time*0.6 + position.x*0.003 + position.z*0.002);
+        sin(time * speed + phase);
 
     gl_PointSize =
         size *
@@ -307,11 +316,11 @@ void main(){
     // Метод обновления
     //----------------------------------------------------
 
-    group.update = function (elapsed) {
+    group.update = function (time) {
 
-        material.uniforms.time.value = elapsed;
+        material.uniforms.time.value = time.elapsed;
 
-        stars.rotation.y = elapsed * 0.003;
+        stars.rotation.y = time.elapsed * 0.003;
 
     };
 
