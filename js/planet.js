@@ -83,7 +83,7 @@ export function createPlanet(config) {
   orbit.add(sphere);
   const moons = createMoons(config, sphere);
   planet.add(orbitLine, orbit);
-  planet.userData = { orbit, sphere, config };
+  planet.userData = { orbit, sphere, config, moons };
   planet.update = (time) => {
     orbit.rotation.y = time.elapsed * config.orbitSpeed * 0.12;
     sphere.rotation.y = time.elapsed * config.rotationSpeed;
@@ -97,15 +97,23 @@ export function createPlanet(config) {
 }
 
 function createMoons(config, sphere) {
-  return (config.moons ?? []).map((moon) => {
+  return (config.moons ?? []).map((moon, index) => {
     const pivot = new THREE.Group();
     const mesh = new THREE.Mesh(
       new THREE.SphereGeometry(moon.radius, 24, 24),
       new THREE.MeshStandardMaterial({ color: moon.color, roughness: 0.9 }),
     );
     mesh.position.x = moon.distance;
+    const moonConfig = {
+      ...moon,
+      id: moon.id ?? `${config.id}-moon-${index + 1}`,
+      description: moon.description ?? `Естественный спутник планеты ${config.name}.`,
+      fact: moon.fact ?? `${moon.name} обращается вокруг ${config.name}.`,
+    };
+    mesh.name = moonConfig.id;
+    mesh.userData.config = moonConfig;
     pivot.add(mesh);
     sphere.add(pivot);
-    return { pivot, speed: moon.speed };
+    return { pivot, mesh, speed: moon.speed, config: moonConfig };
   });
 }

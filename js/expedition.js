@@ -16,10 +16,11 @@ export function createExpedition(world) {
   let fuel = state.fuel ?? 100;
   let target = world.bodies.find((body) => body.config.id === (state.target ?? "earth"));
   let lastSave = 0;
-  const turnSpeed = 1.35;
+  const turnSpeed = 0.78;
+  const rollSpeed = 1.05;
 
   addEventListener("keydown", (event) => {
-    if (["KeyW", "KeyA", "KeyS", "KeyD", "KeyQ", "KeyE"].includes(event.code)) {
+    if (["KeyW", "KeyA", "KeyS", "KeyD", "KeyQ", "KeyE", "KeyZ", "KeyX"].includes(event.code)) {
       keys.add(event.code);
       if (active) event.preventDefault();
     }
@@ -33,7 +34,8 @@ export function createExpedition(world) {
     document.body.classList.toggle("flight-mode", value);
     dispatchEvent(new CustomEvent("kosmodrom-flight-mode", { detail: value }));
     document.getElementById("flightBtn").setAttribute("aria-pressed", String(value));
-    announce(value ? "Корабль готов. W и S — тяга, A и D — поворот, Q и E — высота курса." : "Автопилот отключён.");
+    document.getElementById("flightBtn").textContent = value ? "◎ На объект" : "🚀 На корабль";
+    announce(value ? "Корабль готов. Z и X управляют креном." : "Режим выбора объекта включён.");
   }
 
   function setCockpit(value) {
@@ -56,6 +58,8 @@ export function createExpedition(world) {
     if (keys.has("KeyD")) ship.rotateY(-turnSpeed * delta);
     if (keys.has("KeyQ")) ship.rotateX(-turnSpeed * delta);
     if (keys.has("KeyE")) ship.rotateX(turnSpeed * delta);
+    if (keys.has("KeyZ")) ship.rotateZ(rollSpeed * delta);
+    if (keys.has("KeyX")) ship.rotateZ(-rollSpeed * delta);
     const forward = ship.getWorldDirection(new THREE.Vector3()).normalize();
     const thrust = new THREE.Vector3();
     if (keys.has("KeyW")) thrust.add(forward);
@@ -121,7 +125,10 @@ export function createExpedition(world) {
   }
 
   document.getElementById("flightBtn").addEventListener("click", () => setActive(!active));
-  addEventListener("kosmodrom-target", (event) => setTarget(event.detail));
+  addEventListener("kosmodrom-target", (event) => {
+    setTarget(event.detail);
+    setActive(false);
+  });
   document.getElementById("cockpitBtn").addEventListener("click", () => setCockpit(!cockpit));
   document.getElementById("physicsMode").addEventListener("change", (event) => { simple = event.target.checked; save(); });
   document.getElementById("refuelBtn").addEventListener("click", () => { fuel = 100; updateHud(0); save(); });

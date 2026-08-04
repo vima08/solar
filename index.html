@@ -39,10 +39,10 @@
       >
       <div class="progress"><i id="mission-progress"></i></div>
     </aside>
-    <aside id="planet-nav" class="glass">
-      <h3>Куда летим?</h3>
+    <details id="planet-nav" class="glass" open>
+      <summary>Куда летим?</summary>
       <div id="planet-list"></div>
-    </aside>
+    </details>
     <aside id="flight-hud" class="glass" aria-label="Приборы корабля">
       <div class="hud-title"><span>КОРАБЛЬ «ИСКРА»</span><b id="flight-warning">Системы в норме</b></div>
       <div class="gauges"><span>СКОРОСТЬ<b id="ship-speed">0.0 км/с</b></span><span>ДО ЦЕЛИ<b id="ship-distance">—</b></span><span>ТОПЛИВО<b id="ship-fuel">100%</b></span></div>
@@ -70,21 +70,20 @@
       <button id="pauseBtn" aria-pressed="false">⏸ Пауза</button
       ><button id="slowBtn">🐢 0.04×</button><button id="normalBtn">▶ 0.2×</button
       ><button id="fastBtn">⚡ 2×</button
-      ><button id="tourBtn">🛰 Экскурсия</button
       ><button id="tourPrevBtn" title="Предыдущая остановка">‹</button
+      ><button id="tourBtn" aria-pressed="false">🛰 Экскурсия</button
       ><button id="tourNextBtn" title="Следующая остановка">›</button
       ><button id="quizBtn">❓ Викторина</button
-      ><button id="flightBtn" aria-pressed="false">🚀 Пилот</button
+      ><button id="flightBtn" aria-pressed="false">🚀 На корабль</button
       ><button id="cockpitBtn" aria-pressed="false">◉ Кабина</button
       ><label class="mode"><input id="physicsMode" type="checkbox" /> Простой режим</label
-      ><button id="refuelBtn">⛽ Заправить</button
-      ><button id="resetBtn">🏠 Домой</button>
+      ><button id="refuelBtn">⛽ Заправить</button>
     </nav>
     <details id="sound-panel" class="glass"><summary>♫ Звук</summary>
       <label>Музыка <input id="musicVolume" data-channel="музыки" type="range" min="0" max="100" /></label>
       <label>Двигатель <input id="engineVolume" data-channel="двигателя" type="range" min="0" max="100" /></label>
     </details>
-    <div id="cockpit-frame" aria-hidden="true"><i></i><i></i><span>W/S · тяга &nbsp; A/D · влево-вправо &nbsp; Q/E · вверх-вниз</span></div>
+    <div id="cockpit-frame" aria-hidden="true"><i></i><i></i><span>W/S · тяга &nbsp; A/D · рысканье &nbsp; Q/E · тангаж &nbsp; Z/X · крен</span></div>
     <dialog id="quiz" class="glass">
       <form method="dialog">
         <button class="close-quiz" aria-label="Закрыть">×</button>

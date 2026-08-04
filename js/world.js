@@ -37,6 +37,17 @@ export function populateWorld(scene) {
         },
       },
       ...planets.bodies,
+      {
+        object: comet.userData.comet.children[0],
+        type: "comet",
+        config: {
+          id: "comet",
+          name: "Комета",
+          radius: 0.9,
+          description: "Ледяная странница с ярким хвостом пересекает Солнечную систему.",
+          fact: "Хвост кометы всегда направлен в сторону от Солнца.",
+        },
+      },
     ],
   };
 }

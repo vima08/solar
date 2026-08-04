@@ -195,12 +195,17 @@ header {
   border-radius: 20px;
   z-index: 5;
 }
-#planet-nav h3 {
+#planet-nav summary {
   font-size: 11px;
   color: #8fb5d0;
-  margin: 0 4px 8px;
+  margin: 0 4px;
   text-transform: uppercase;
   letter-spacing: 1px;
+  cursor: pointer;
+  user-select: none;
+}
+#planet-nav[open] summary {
+  margin-bottom: 8px;
 }
 #planet-list {
   display: grid;
@@ -218,6 +223,11 @@ header {
 #planet-list button:hover {
   background: linear-gradient(90deg, #654de077, #1bbad855);
   color: #fff;
+}
+#planet-list button.secondary-object {
+  padding-left: 20px;
+  color: #9fc5df;
+  font-size: 11px;
 }
 #controls {
   position: fixed;
