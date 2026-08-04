@@ -20,12 +20,8 @@ export function initUI(world) {
   const selected = document.getElementById("selected");
   const timeScale = document.getElementById("timeScale");
   const pauseButton = document.getElementById("pauseBtn");
-  const progressKey = "visited-worlds-v2";
-  const moonProgressKey = "visited-moons-v1";
-  const savedProgress = JSON.parse(localStorage.getItem(progressKey) ?? "[]");
-  const savedMoonProgress = JSON.parse(localStorage.getItem(moonProgressKey) ?? "[]");
-  const visited = new Set(Array.isArray(savedProgress) ? savedProgress : []);
-  const visitedMoons = new Set(Array.isArray(savedMoonProgress) ? savedMoonProgress : []);
+  const visited = new Set();
+  const visitedMoons = new Set();
   function showInfo(config) {
     name.textContent = config.name;
     selected.textContent = config.name;
@@ -33,12 +29,10 @@ export function initUI(world) {
     const body = world.bodies.find((item) => item.config.id === config.id);
     if (body?.type === "planet") {
       visited.add(config.id);
-      localStorage.setItem(progressKey, JSON.stringify([...visited]));
       updateProgress();
     }
     if (body?.type === "moon") {
       visitedMoons.add(config.id);
-      localStorage.setItem(moonProgressKey, JSON.stringify([...visitedMoons]));
       updateProgress();
     }
     document.getElementById("announcement").textContent =
@@ -90,12 +84,27 @@ export function initUI(world) {
     if (body.type === "moon") return;
     const moons = childBodies.get(body.config.id) ?? [];
     if (body.type === "planet" && moons.length) {
-      const group = document.createElement("details");
-      group.className = "destination-group";
-      group.open = true;
-      const summary = document.createElement("summary");
-      summary.append(createDestinationButton(body));
-      group.append(summary, ...moons.map(createDestinationButton));
+      const group = document.createElement("div");
+      group.className = "destination-group expanded";
+      const row = document.createElement("div");
+      row.className = "destination-row";
+      const toggle = document.createElement("button");
+      toggle.className = "moon-toggle";
+      toggle.type = "button";
+      toggle.textContent = "⌄";
+      toggle.setAttribute("aria-label", `Свернуть спутники ${body.config.name}`);
+      toggle.setAttribute("aria-expanded", "true");
+      const moonList = document.createElement("div");
+      moonList.className = "moon-list";
+      moonList.append(...moons.map(createDestinationButton));
+      toggle.addEventListener("click", () => {
+        const expanded = group.classList.toggle("expanded");
+        toggle.textContent = expanded ? "⌄" : "›";
+        toggle.setAttribute("aria-expanded", String(expanded));
+        toggle.setAttribute("aria-label", `${expanded ? "Свернуть" : "Развернуть"} спутники ${body.config.name}`);
+      });
+      row.append(createDestinationButton(body), toggle);
+      group.append(row, moonList);
       planetList.append(group);
       return;
     }

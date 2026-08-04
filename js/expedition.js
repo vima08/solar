@@ -58,8 +58,8 @@ export function createExpedition(world) {
     if (keys.has("KeyD")) ship.rotateY(-turnSpeed * delta);
     if (keys.has("ArrowUp")) ship.rotateX(-turnSpeed * delta);
     if (keys.has("ArrowDown")) ship.rotateX(turnSpeed * delta);
-    if (keys.has("ArrowLeft")) ship.rotateZ(rollSpeed * delta);
-    if (keys.has("ArrowRight")) ship.rotateZ(-rollSpeed * delta);
+    if (keys.has("ArrowLeft")) ship.rotateZ(-rollSpeed * delta);
+    if (keys.has("ArrowRight")) ship.rotateZ(rollSpeed * delta);
     const forward = ship.getWorldDirection(new THREE.Vector3()).normalize();
     const thrust = new THREE.Vector3();
     if (keys.has("KeyW")) thrust.add(forward);

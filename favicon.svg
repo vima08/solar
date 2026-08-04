@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <radialGradient id="space" cx="28%" cy="22%" r="80%">
+      <stop offset="0" stop-color="#233e86"/>
+      <stop offset="1" stop-color="#02040c"/>
+    </radialGradient>
+    <linearGradient id="rocket" x1="16" y1="48" x2="49" y2="15" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#63d9ff"/>
+      <stop offset="1" stop-color="#8c78ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#space)"/>
+  <circle cx="46" cy="15" r="3" fill="#fff7b8"/>
+  <circle cx="16" cy="23" r="2" fill="#d8f7ff"/>
+  <path d="M18 46c7-16 19-27 33-33-4 15-15 27-32 34l-1-1Z" fill="url(#rocket)"/>
+  <path d="M26 39 15 50l3-12 8 1ZM36 29l1 8 12-3-11-6-2 1Z" fill="#2bd2f0"/>
+  <circle cx="39" cy="26" r="4" fill="#eafaff"/>
+  <path d="M15 49c-4 2-6 5-7 8 4-1 7-3 10-7l-3-1Z" fill="#ffb347"/>
+</svg>
