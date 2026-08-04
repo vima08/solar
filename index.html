@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#071126" />
     <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <title>КосмоДром — исследуй Солнечную систему</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
@@ -31,16 +32,18 @@
       ><span>СКОРОСТЬ<b id="timeScale">0.2×</b></span
       ><span>ЦЕЛЬ<b id="selected">Солнце</b></span>
     </aside>
-    <aside id="mission" class="glass">
-      <p>⭐ МИССИЯ ИССЛЕДОВАТЕЛЯ</p>
-      <strong
-        >Посети все восемь планет ·
-        <span id="mission-count">0 из 8</span></strong
-      >
-      <div class="progress"><i id="mission-progress"></i></div>
-      <strong class="moon-mission">Исследуй луны · <span id="moon-mission-count">0 из 5</span></strong>
-      <div class="progress moon-progress"><i id="moon-mission-progress"></i></div>
-    </aside>
+    <details id="mission" class="glass collapsible-panel">
+      <summary>⭐ Миссия исследователя</summary>
+      <div class="panel-content">
+        <strong
+          >Посети все восемь планет ·
+          <span id="mission-count">0 из 8</span></strong
+        >
+        <div class="progress"><i id="mission-progress"></i></div>
+        <strong class="moon-mission">Исследуй луны · <span id="moon-mission-count">0 из 5</span></strong>
+        <div class="progress moon-progress"><i id="moon-mission-progress"></i></div>
+      </div>
+    </details>
     <details id="planet-nav" class="glass" open>
       <summary>Куда летим?</summary>
       <div id="planet-list"></div>
@@ -52,19 +55,24 @@
       <div class="route"><span>◎ <b id="route-target">Земля</b></span><span id="route-eta">≈ 4 мин</span></div>
       <p id="radio-message">ЦУП: связь установлена · субтитры включены</p>
     </aside>
-    <aside id="expedition-panel" class="glass">
-      <span class="eyebrow">АКТИВНАЯ МИССИЯ</span><strong id="active-mission">Доставь зонд на Марс</strong>
-      <small>Образцы: <b id="sample-count">0</b> · второй пилот: навигатор</small><button id="missionAction">Следующая миссия →</button>
-    </aside>
-    <section id="planet-panel" class="glass">
-      <span class="eyebrow">Бортовой компьютер</span>
-      <h2 id="planet-name">Солнце</h2>
-      <div id="planet-description">
-        Добро пожаловать в нашу Солнечную систему!<strong
-          >💡 Выбери планету справа или включи экскурсию.</strong
-        >
+    <details id="expedition-panel" class="glass collapsible-panel">
+      <summary>Активная миссия</summary>
+      <div class="panel-content">
+        <strong id="active-mission">Доставь зонд на Марс</strong>
+        <small>Образцы: <b id="sample-count">0</b> · второй пилот: навигатор</small><button id="missionAction">Следующая миссия →</button>
       </div>
-    </section>
+    </details>
+    <details id="planet-panel" class="glass collapsible-panel">
+      <summary>Бортовой компьютер</summary>
+      <div class="panel-content">
+        <h2 id="planet-name">Солнце</h2>
+        <div id="planet-description">
+          Добро пожаловать в нашу Солнечную систему!<strong
+            >💡 Выбери планету справа или включи экскурсию.</strong
+          >
+        </div>
+      </div>
+    </details>
     <div id="hint">
       🖱 Вращай мышью · приближай колёсиком · нажимай на подписи
     </div>
