@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { COLORS } from "./constants.js";
+import { COLORS } from "../core/constants.js";
 import { getPlanetTexture } from "./planet-textures.js";
 
 export function createPlanet(config) {

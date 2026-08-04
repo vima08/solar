@@ -1,9 +1,9 @@
-import { createScene } from "./scene.js";
+import { createScene } from "./app/scene.js";
 
-import { createEngine } from "./engine.js";
+import { createEngine } from "./core/engine.js";
 
-import { initUI } from "./ui.js";
-import { createExpedition } from "./expedition.js";
+import { initUI } from "./ui/ui.js";
+import { createExpedition } from "./ui/expedition.js";
 
 window.addEventListener("DOMContentLoaded", async () => {
   const world = await createScene();

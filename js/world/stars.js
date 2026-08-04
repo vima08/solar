@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { STAR_COUNT, STAR_FIELD_RADIUS } from "./constants.js";
+import { STAR_COUNT, STAR_FIELD_RADIUS } from "../core/constants.js";
 
 /*
     Генерирует красивое звездное небо.

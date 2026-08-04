@@ -1,7 +1,7 @@
-import { getTime, togglePause, setTimeScale } from "./time.js";
+import { getTime, togglePause, setTimeScale } from "../core/time.js";
 import { createNavigation } from "./navigation.js";
 import { createLabels } from "./labels.js";
-import { AMBIENT_AUDIO, ENGINE_AUDIO } from "./audio-resources.js";
+import { AMBIENT_AUDIO, ENGINE_AUDIO } from "../assets/audio-resources.js";
 
 const QUIZ_QUESTIONS = [
   { question: "Какую планету называют голубой?", answers: ["Марс", "Земля", "Сатурн"], correct: 1, fact: "Землю называют голубой планетой из-за океанов." },
