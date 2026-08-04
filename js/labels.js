@@ -26,7 +26,8 @@ export function createLabels(bodies, camera, renderer, onChoose) {
           Math.abs(point.x) < 1.1 &&
           Math.abs(point.y) < 1.1;
         button.hidden = !visible;
-        button.style.transform = `translate(${(point.x * 0.5 + 0.5) * width}px, ${(-point.y * 0.5 + 0.5) * height}px)`;
+        button.style.left = `${(point.x * 0.5 + 0.5) * width}px`;
+        button.style.top = `${(-point.y * 0.5 + 0.5) * height}px`;
       }
     },
   };

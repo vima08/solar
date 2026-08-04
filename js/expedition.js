@@ -16,6 +16,7 @@ export function createExpedition(world) {
   let fuel = state.fuel ?? 100;
   let target = world.bodies.find((body) => body.config.id === (state.target ?? "earth"));
   let lastSave = 0;
+  const turnSpeed = 1.35;
 
   addEventListener("keydown", (event) => {
     if (["KeyW", "KeyA", "KeyS", "KeyD", "KeyQ", "KeyE"].includes(event.code)) {
@@ -32,7 +33,7 @@ export function createExpedition(world) {
     document.body.classList.toggle("flight-mode", value);
     dispatchEvent(new CustomEvent("kosmodrom-flight-mode", { detail: value }));
     document.getElementById("flightBtn").setAttribute("aria-pressed", String(value));
-    announce(value ? "Корабль готов. Используй W A S D, Q и E." : "Автопилот отключён.");
+    announce(value ? "Корабль готов. W и S — тяга, A и D — поворот, Q и E — высота курса." : "Автопилот отключён.");
   }
 
   function setCockpit(value) {
@@ -51,15 +52,14 @@ export function createExpedition(world) {
     if (!active) return;
     const targetPosition = target.object.getWorldPosition(new THREE.Vector3());
     const toTarget = targetPosition.clone().sub(ship.position);
-    const forward = toTarget.clone().normalize();
-    const side = new THREE.Vector3().crossVectors(forward, world.camera.up).normalize();
+    if (keys.has("KeyA")) ship.rotateY(turnSpeed * delta);
+    if (keys.has("KeyD")) ship.rotateY(-turnSpeed * delta);
+    if (keys.has("KeyQ")) ship.rotateX(-turnSpeed * delta);
+    if (keys.has("KeyE")) ship.rotateX(turnSpeed * delta);
+    const forward = ship.getWorldDirection(new THREE.Vector3()).normalize();
     const thrust = new THREE.Vector3();
     if (keys.has("KeyW")) thrust.add(forward);
     if (keys.has("KeyS")) thrust.sub(forward);
-    if (keys.has("KeyA")) thrust.add(side);
-    if (keys.has("KeyD")) thrust.sub(side);
-    if (keys.has("KeyQ")) thrust.y += 1;
-    if (keys.has("KeyE")) thrust.y -= 1;
     if (thrust.lengthSq() && fuel > 0) {
       velocity.addScaledVector(thrust.normalize(), delta * (simple ? 10 : 5));
       fuel = Math.max(0, fuel - delta * 0.7);
@@ -68,7 +68,6 @@ export function createExpedition(world) {
     else applyGravity(world.bodies, ship.position, velocity, delta);
     velocity.clampLength(0, simple ? 8 : 15);
     ship.position.addScaledVector(velocity, delta);
-    ship.lookAt(ship.position.clone().add(forward));
 
     const distance = toTarget.length();
     const safeDistance = target.config.radius + 1.3;

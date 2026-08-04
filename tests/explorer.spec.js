@@ -22,6 +22,27 @@ test("shows the complete interactive planet navigator", async ({ page }) => {
   await expect(page.locator("canvas")).toBeVisible();
 });
 
+test("keeps planet labels anchored while they grow on hover", async ({ page }) => {
+  const label = page.locator('.space-label[data-object="sun"]');
+  const before = await label.boundingBox();
+  await label.hover();
+  const after = await label.boundingBox();
+
+  expect(before).not.toBeNull();
+  expect(after).not.toBeNull();
+  expect((after.x + after.width / 2) - (before.x + before.width / 2)).toBeCloseTo(0, 1);
+});
+
+test("places the sound mixer above the onboard computer", async ({ page }) => {
+  await page.locator("#sound-panel").evaluate((panel) => { panel.open = true; });
+  const mixer = await page.locator("#sound-panel").boundingBox();
+  const computer = await page.locator("#planet-panel").boundingBox();
+
+  expect(mixer).not.toBeNull();
+  expect(computer).not.toBeNull();
+  expect(mixer.y + mixer.height).toBeLessThanOrEqual(computer.y);
+});
+
 test("flies to a planet and displays its educational fact", async ({
   page,
 }) => {

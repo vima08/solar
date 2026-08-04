@@ -47,12 +47,12 @@ canvas {
   font-size: 12px;
   white-space: nowrap;
   cursor: pointer;
-  transition: 0.2s;
-  translate: -50% -155%;
+  transform: translate(-50%, -155%);
+  transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
 }
 .space-label:hover {
   background: #2872bc;
-  scale: 1.08;
+  transform: translate(-50%, -155%) scale(1.08);
 }
 .space-label[hidden] {
   display: none;
@@ -127,7 +127,7 @@ header {
 #expedition-panel { position:fixed; right:20px; bottom:108px; width:230px; padding:14px; border-radius:18px; z-index:5; }
 #expedition-panel .eyebrow { color:var(--blue); font-size:9px; letter-spacing:1px; } #expedition-panel strong,#expedition-panel small { display:block; margin:5px 0; } #expedition-panel small { color:#91adc2; } #expedition-panel button { border:0; padding:6px 0; color:#67dcff; background:none; cursor:pointer; }
 .mode { display:flex; align-items:center; padding:0 6px; color:#a9c3d7; font-size:11px; }
-#sound-panel { position:fixed; left:20px; bottom:245px; width:180px; padding:10px 13px; border-radius:14px; z-index:7; color:#a9c3d7; font-size:11px; } #sound-panel summary { cursor:pointer; color:white; } #sound-panel label { display:grid; grid-template-columns:1fr 80px; align-items:center; margin-top:8px; } #sound-panel input { width:80px; }
+#sound-panel { position:fixed; left:20px; bottom:385px; width:180px; padding:10px 13px; border-radius:14px; z-index:7; color:#a9c3d7; font-size:11px; } #sound-panel summary { cursor:pointer; color:white; } #sound-panel label { display:grid; grid-template-columns:1fr 80px; align-items:center; margin-top:8px; } #sound-panel input { width:80px; }
 #cockpit-frame { display:none; position:fixed; inset:0; z-index:10; pointer-events:none; border:28px solid rgba(5,12,24,.72); border-top-width:72px; clip-path:polygon(0 0,100% 0,100% 100%,82% 100%,74% 76%,26% 76%,18% 100%,0 100%); } .cockpit-mode #cockpit-frame { display:block; }
 #cockpit-frame i { position:absolute; top:-72px; bottom:24%; width:8px; background:#26354c; } #cockpit-frame i:first-child { left:22%; rotate:-12deg; } #cockpit-frame i:nth-child(2) { right:22%; rotate:12deg; } #cockpit-frame span { position:absolute; left:50%; bottom:3px; translate:-50%; color:#75ddff; font-size:11px; }
 #mission p {
