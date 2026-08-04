@@ -117,6 +117,30 @@ header {
   border-radius: 18px;
   z-index: 5;
 }
+
+#planet-nav summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  cursor: pointer;
+}
+.label-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #a9c3d7;
+  font-size: 11px;
+  font-weight: 400;
+  cursor: pointer;
+  user-select: none;
+}
+.label-toggle input {
+  accent-color: var(--blue);
+}
+.labels-hidden .space-label {
+  display: none;
+}
 #flight-hud { display:none; position:fixed; top:20px; left:50%; width:min(540px,calc(100% - 40px)); translate:-50%; padding:13px 18px; border-radius:18px; z-index:12; }
 .flight-mode #flight-hud { display:block; }
 .hud-title,.gauges,.route { display:flex; align-items:center; justify-content:space-between; gap:18px; }

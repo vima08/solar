@@ -12,8 +12,19 @@ export function createLabels(bodies, camera, renderer, onChoose) {
     return { body, button };
   });
   const point = new THREE.Vector3();
+  let labelsHidden = false;
 
   return {
+    setHidden(hidden) {
+      labelsHidden = hidden;
+      layer.setAttribute("aria-hidden", String(hidden));
+      layer.classList.toggle("labels-hidden", hidden);
+      if (hidden) {
+        entries.forEach(({ button }) => {
+          button.hidden = true;
+        });
+      }
+    },
     update() {
       const width = renderer.domElement.clientWidth;
       const height = renderer.domElement.clientHeight;
@@ -25,7 +36,7 @@ export function createLabels(bodies, camera, renderer, onChoose) {
           point.z < 1 &&
           Math.abs(point.x) < 1.1 &&
           Math.abs(point.y) < 1.1;
-        button.hidden = !visible;
+        button.hidden = labelsHidden || !visible;
         button.style.left = `${(point.x * 0.5 + 0.5) * width}px`;
         button.style.top = `${(-point.y * 0.5 + 0.5) * height}px`;
       }

@@ -54,6 +54,11 @@ export function initUI(world) {
   world.navigation = navigation;
   world.labels = labels;
 
+  const labelsHiddenToggle = document.getElementById("labelsHidden");
+  labelsHiddenToggle.addEventListener("click", (event) => event.stopPropagation());
+  labelsHiddenToggle.addEventListener("change", () => labels.setHidden(labelsHiddenToggle.checked));
+  labels.setHidden(labelsHiddenToggle.checked);
+
   function chooseBody(body) {
     window.dispatchEvent(new CustomEvent("kosmodrom-target", { detail: body }));
     navigation.flyTo(body);
