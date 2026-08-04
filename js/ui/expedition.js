@@ -1,7 +1,11 @@
 import * as THREE from "three";
+import { EXPLOSION_AUDIO } from "../assets/audio-resources.js";
 
 const SAVE_KEY = "kosmodrom-expedition-v1";
 const START = new THREE.Vector3(24, 2, 0);
+const SHIP_SCALE = 0.36;
+const FORWARD = new THREE.Vector3(0, 0, 1);
+const CAMERA_FORWARD_FIX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
 
 export function createExpedition(world) {
   const ship = createShip();
@@ -10,6 +14,7 @@ export function createExpedition(world) {
   ship.position.fromArray(state.position ?? START.toArray());
   const velocity = new THREE.Vector3().fromArray(state.velocity ?? [0, 0, 0]);
   const keys = new Set();
+  const explosions = [];
   let active = false;
   let cockpit = false;
   let simple = state.simple ?? true;
@@ -56,6 +61,7 @@ export function createExpedition(world) {
   }
 
   function update(delta) {
+    updateExplosions(delta);
     if (!active) return;
     if (keys.has("KeyA")) ship.rotateY(turnSpeed * delta);
     if (keys.has("KeyD")) ship.rotateY(-turnSpeed * delta);
@@ -63,7 +69,7 @@ export function createExpedition(world) {
     if (keys.has("ArrowDown")) ship.rotateX(-turnSpeed * delta);
     if (keys.has("ArrowLeft")) ship.rotateZ(-rollSpeed * delta);
     if (keys.has("ArrowRight")) ship.rotateZ(rollSpeed * delta);
-    const forward = ship.getWorldDirection(new THREE.Vector3()).normalize();
+    const forward = getShipForward(ship);
     const thrust = new THREE.Vector3();
     if (keys.has("KeyW")) thrust.add(forward);
     if (keys.has("KeyS")) thrust.sub(forward);
@@ -71,6 +77,7 @@ export function createExpedition(world) {
       velocity.addScaledVector(thrust.normalize(), delta * (simple ? 10 : 5));
       fuel = Math.max(0, fuel - delta * 0.7);
     }
+    updateFlame(ship, thrust.lengthSq() > 0 && fuel > 0);
     if (simple) velocity.multiplyScalar(Math.pow(0.12, delta));
     else applyGravity(world.bodies, ship.position, velocity, delta);
     velocity.clampLength(0, simple ? 8 : 15);
@@ -100,7 +107,7 @@ export function createExpedition(world) {
   function findCollision(position) {
     return world.bodies.find((body) => {
       const bodyPosition = body.object.getWorldPosition(new THREE.Vector3());
-      return bodyPosition.distanceTo(position) <= body.config.radius + 0.45;
+      return bodyPosition.distanceTo(position) <= body.config.radius + 0.18;
     });
   }
 
@@ -109,11 +116,54 @@ export function createExpedition(world) {
     velocity.set(0, 0, 0);
     setTarget(body);
     setActive(false);
+    createExplosion(ship.position, body.config.radius);
+    playExplosionSample();
     ship.visible = false;
     world.navigation?.flyTo(body);
     document.getElementById("flight-warning").textContent = `Столкновение: ${body.config.name}. Корабль разрушен!`;
     announce(`Столкновение с объектом ${body.config.name}. Автопилот переключил обзор на объект.`);
     save();
+  }
+
+
+  function createExplosion(position, radius) {
+    const group = new THREE.Group();
+    const flash = new THREE.PointLight(0xfff2a0, 18, Math.max(10, radius * 7));
+    const core = new THREE.Mesh(
+      new THREE.SphereGeometry(Math.max(0.9, radius * 0.55), 24, 16),
+      new THREE.MeshBasicMaterial({ color: 0xfff1a8, transparent: true, opacity: 0.95 }),
+    );
+    const shockwave = new THREE.Mesh(
+      new THREE.SphereGeometry(Math.max(1.2, radius * 0.9), 32, 16),
+      new THREE.MeshBasicMaterial({ color: 0xff4a00, transparent: true, opacity: 0.42, wireframe: true }),
+    );
+    group.position.copy(position);
+    group.add(flash, core, shockwave);
+    world.scene.add(group);
+    explosions.push({ group, flash, core, shockwave, age: 0, duration: 1.05 });
+  }
+
+  function updateExplosions(delta) {
+    for (let index = explosions.length - 1; index >= 0; index -= 1) {
+      const explosion = explosions[index];
+      explosion.age += delta;
+      const progress = explosion.age / explosion.duration;
+      explosion.core.scale.setScalar(1 + progress * 2.4);
+      explosion.shockwave.scale.setScalar(1 + progress * 4.2);
+      explosion.core.material.opacity = Math.max(0, 0.95 * (1 - progress));
+      explosion.shockwave.material.opacity = Math.max(0, 0.42 * (1 - progress));
+      explosion.flash.intensity = Math.max(0, 18 * (1 - progress));
+      if (progress >= 1) {
+        world.scene.remove(explosion.group);
+        explosions.splice(index, 1);
+      }
+    }
+  }
+
+  function playExplosionSample() {
+    const audio = new Audio(EXPLOSION_AUDIO);
+    audio.volume = 0.75;
+    audio.play().catch(() => {});
   }
 
   function respawnShip() {
@@ -132,7 +182,7 @@ export function createExpedition(world) {
     if (cockpit) {
       const cockpitOffset = new THREE.Vector3(0, 0.35, -0.35).applyQuaternion(ship.quaternion);
       world.camera.position.copy(ship.position).add(cockpitOffset);
-      world.camera.quaternion.copy(ship.quaternion);
+      world.camera.quaternion.copy(ship.quaternion).multiply(CAMERA_FORWARD_FIX);
     } else {
       world.camera.up.set(0, 1, 0);
       world.camera.position.lerp(ship.position.clone().addScaledVector(forward, -7).add(new THREE.Vector3(0, 3, 0)), 0.12);
@@ -196,14 +246,35 @@ export function createExpedition(world) {
   return { update, setTarget, save };
 }
 
+function getShipForward(ship) {
+  return FORWARD.clone().applyQuaternion(ship.quaternion).normalize();
+}
+
+function updateFlame(ship, enabled) {
+  const flame = ship.getObjectByName("engine-flame");
+  if (!flame) return;
+  flame.visible = enabled;
+  flame.material.opacity = enabled ? 0.78 : 0;
+  const pulse = 0.85 + Math.random() * 0.45;
+  flame.scale.set(pulse, pulse, 1.2 + Math.random() * 0.6);
+}
+
+
 function createShip() {
   const ship = new THREE.Group();
   const hull = new THREE.Mesh(new THREE.ConeGeometry(0.45, 1.8, 12), new THREE.MeshStandardMaterial({ color: 0xe8f4ff, metalness: 0.65, roughness: 0.25 }));
   hull.rotation.x = Math.PI / 2;
   const wing = new THREE.Mesh(new THREE.BoxGeometry(2, 0.08, 0.65), new THREE.MeshStandardMaterial({ color: 0x4fc9ff, emissive: 0x063a65 }));
-  const engine = new THREE.PointLight(0x58cfff, 3, 8);
-  engine.position.z = 1;
-  ship.add(hull, wing, engine);
+  const engine = new THREE.PointLight(0x58cfff, 2, 4);
+  engine.position.z = -0.72;
+  const flame = new THREE.Mesh(
+    new THREE.SphereGeometry(0.22, 16, 10),
+    new THREE.MeshBasicMaterial({ color: 0xff2a00, transparent: true, opacity: 0 }),
+  );
+  flame.name = "engine-flame";
+  flame.position.z = -0.95;
+  ship.add(hull, wing, engine, flame);
+  ship.scale.setScalar(SHIP_SCALE);
   ship.visible = true;
   return ship;
 }
