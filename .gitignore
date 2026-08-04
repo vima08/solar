@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Test output
+test-results/
+playwright-report/
+blob-report/
+coverage/
+
+# Generated artifacts
+dist/
+build/
+.cache/
+*.log
