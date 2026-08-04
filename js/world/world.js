@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { createStars } from "./stars.js";
 import { createSun } from "./sun.js";
 import { createPlanets } from "./planets.js";
-import { addUpdatable } from "./updatables.js";
+import { addUpdatable } from "../core/updatables.js";
 import { createAsteroidBelt } from "./asteroids.js";
 import { createComet } from "./comet.js";
 

@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { createPlanet } from "./planet.js";
-import { PLANETS } from "./constants.js";
-import { addUpdatable } from "./updatables.js";
+import { PLANETS } from "../core/constants.js";
+import { addUpdatable } from "../core/updatables.js";
 
 export function createPlanets() {
   const group = new THREE.Group();

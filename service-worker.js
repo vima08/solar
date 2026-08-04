@@ -1,5 +1,5 @@
 const CACHE = "kosmodrom-v4";
-const APP_SHELL = ["./", "./index.html", "./styles.css", "./js/main.js", "./js/expedition.js"];
+const APP_SHELL = ["./", "./index.html", "./styles.css", "./js/main.js", "./js/ui/expedition.js"];
 
 self.addEventListener("install", (event) =>
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(APP_SHELL))),

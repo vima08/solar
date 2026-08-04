@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { SUN_RADIUS } from "./constants.js";
+import { SUN_RADIUS } from "../core/constants.js";
 
 export function createSun() {
   const sun = new THREE.Group();

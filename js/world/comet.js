@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { COLORS } from "./constants.js";
+import { COLORS } from "../core/constants.js";
 
 const INCLINATION = THREE.MathUtils.degToRad(58);
 const ORBIT_X = 86;

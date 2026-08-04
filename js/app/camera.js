@@ -4,7 +4,7 @@ import {
   CAMERA_FOV,
   CAMERA_NEAR,
   CAMERA_START,
-} from "./constants.js";
+} from "../core/constants.js";
 
 export function createCamera() {
   const aspectRatio = window.innerWidth / window.innerHeight;

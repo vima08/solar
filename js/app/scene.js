@@ -3,7 +3,7 @@ import { createRenderer } from "./renderer.js";
 import { createCamera } from "./camera.js";
 import { createControls } from "./controls.js";
 import { setupResize } from "./resize.js";
-import { populateWorld } from "./world.js";
+import { populateWorld } from "../world/world.js";
 
 export async function createScene() {
   const scene = new THREE.Scene();
