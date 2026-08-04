@@ -95,7 +95,7 @@ export function createExpedition(world) {
   function updateHud(distance) {
     document.getElementById("ship-speed").textContent = `${velocity.length().toFixed(1)} км/с`;
     document.getElementById("ship-distance").textContent = `${distance.toFixed(1)} млн км`;
-    document.getElementById("ship-fuel").textContent = `${Math.round(fuel)}%`;
+    document.getElementById("ship-fuel").textContent = `${Math.floor(fuel)}%`;
     document.getElementById("fuel-level").style.width = `${fuel}%`;
   }
 
@@ -126,7 +126,7 @@ export function createExpedition(world) {
   document.getElementById("refuelBtn").addEventListener("click", () => { fuel = 100; updateHud(0); save(); });
   document.getElementById("missionAction").addEventListener("click", () => {
     const missions = ["Доставь зонд на Марс", "Сфотографируй шторм Юпитера", "Пролети через кольца Сатурна", "Вернись на Землю"];
-    state.mission = ((state.mission ?? -1) + 1) % missions.length;
+    state.mission = ((state.mission ?? 0) + 1) % missions.length;
     document.getElementById("active-mission").textContent = missions[state.mission];
     save();
   });
