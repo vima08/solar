@@ -1,4 +1,4 @@
-const state = { elapsed: 0, delta: 0, scale: 1, paused: false };
+const state = { elapsed: 0, delta: 0, scale: 0.2, paused: false };
 
 export function updateTime(realDelta) {
   state.delta = realDelta;

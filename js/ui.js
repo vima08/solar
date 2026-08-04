@@ -8,16 +8,16 @@ export function initUI(world) {
   const selected = document.getElementById("selected");
   const timeScale = document.getElementById("timeScale");
   const pauseButton = document.getElementById("pauseBtn");
-  const visited = new Set(
-    JSON.parse(localStorage.getItem("visited-worlds") ?? "[]"),
-  );
+  const progressKey = "visited-worlds-v2";
+  const savedProgress = JSON.parse(localStorage.getItem(progressKey) ?? "[]");
+  const visited = new Set(Array.isArray(savedProgress) ? savedProgress : []);
   function showInfo(config) {
     name.textContent = config.name;
     selected.textContent = config.name;
     description.innerHTML = `${config.description}<strong>💡 ${config.fact}</strong>`;
     if (config.id && config.id !== "sun") {
       visited.add(config.id);
-      localStorage.setItem("visited-worlds", JSON.stringify([...visited]));
+      localStorage.setItem(progressKey, JSON.stringify([...visited]));
       updateProgress();
     }
     document.getElementById("announcement").textContent =
@@ -69,9 +69,9 @@ export function initUI(world) {
     pauseButton.setAttribute("aria-pressed", String(paused));
   });
   [
-    ["slowBtn", 0.2, "0.2×"],
-    ["normalBtn", 1, "1×"],
-    ["fastBtn", 10, "10×"],
+    ["slowBtn", 0.04, "0.04×"],
+    ["normalBtn", 0.2, "0.2×"],
+    ["fastBtn", 2, "2×"],
   ].forEach(([id, scale, label]) => {
     document.getElementById(id).addEventListener("click", () => {
       setTimeScale(scale);
@@ -98,12 +98,61 @@ export function initUI(world) {
 function setupAudio() {
   const engine = document.getElementById("engineVolume");
   const music = document.getElementById("musicVolume");
-  [engine, music].forEach((slider) => slider.addEventListener("input", () => {
-    localStorage.setItem(slider.id, slider.value);
-    document.getElementById("radio-message").textContent = `ЦУП: канал ${slider.dataset.channel} настроен на ${slider.value}%`;
-  }));
   engine.value = localStorage.getItem("engineVolume") ?? 55;
   music.value = localStorage.getItem("musicVolume") ?? 30;
+
+  let context;
+  let musicGain;
+  let engineGain;
+
+  function gainFor(slider, maximum) {
+    return (Number(slider.value) / 100) * maximum;
+  }
+
+  function startAudio() {
+    if (!context) {
+      context = new AudioContext();
+      musicGain = context.createGain();
+      engineGain = context.createGain();
+      musicGain.connect(context.destination);
+      engineGain.connect(context.destination);
+
+      [110, 164.81, 220].forEach((frequency, index) => {
+        const tone = context.createOscillator();
+        const toneGain = context.createGain();
+        tone.type = "sine";
+        tone.frequency.value = frequency;
+        toneGain.gain.value = [0.45, 0.2, 0.12][index];
+        tone.connect(toneGain).connect(musicGain);
+        tone.start();
+      });
+      const motor = context.createOscillator();
+      motor.type = "sawtooth";
+      motor.frequency.value = 48;
+      motor.connect(engineGain);
+      motor.start();
+      updateAudioLevels();
+    }
+    context.resume();
+  }
+
+  function updateAudioLevels() {
+    if (!context) return;
+    const now = context.currentTime;
+    musicGain.gain.setTargetAtTime(gainFor(music, 0.08), now, 0.05);
+    const flying = document.body.classList.contains("flight-mode");
+    engineGain.gain.setTargetAtTime(flying ? gainFor(engine, 0.035) : 0, now, 0.05);
+  }
+
+  [engine, music].forEach((slider) => slider.addEventListener("input", () => {
+    startAudio();
+    localStorage.setItem(slider.id, slider.value);
+    updateAudioLevels();
+    document.getElementById("radio-message").textContent = `ЦУП: канал ${slider.dataset.channel} настроен на ${slider.value}%`;
+  }));
+  addEventListener("kosmodrom-flight-mode", updateAudioLevels);
+  addEventListener("pointerdown", startAudio, { once: true });
+  addEventListener("keydown", startAudio, { once: true });
 }
 
 function setupQuiz() {
