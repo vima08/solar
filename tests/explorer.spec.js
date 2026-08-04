@@ -38,6 +38,18 @@ test("collapses and expands the destination list", async ({ page }) => {
   await expect(page.locator("#planet-list")).toBeVisible();
 });
 
+test("toggles space labels from the destination panel heading", async ({ page }) => {
+  await expect(page.locator("#planet-list")).toBeVisible();
+  await expect(page.locator('.space-label[data-object="sun"]')).toBeVisible();
+
+  await page.locator("#labelsHidden").check();
+  await expect(page.locator("#planet-list")).toBeVisible();
+  await expect(page.locator('.space-label[data-object="sun"]')).toBeHidden();
+
+  await page.locator("#labelsHidden").uncheck();
+  await expect(page.locator('.space-label[data-object="sun"]')).toBeVisible();
+});
+
 test("keeps planet labels anchored while they grow on hover", async ({ page }) => {
   const label = page.locator('.space-label[data-object="sun"]');
   const before = await label.boundingBox();
