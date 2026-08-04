@@ -5,19 +5,27 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator("#loading")).toBeHidden({ timeout: 15_000 });
 });
 
-test("starts explorer progress empty and records only selected planets", async ({ page }) => {
+test("starts explorer progress empty and records planets and moons separately", async ({ page }) => {
   await expect(page.locator("#mission-count")).toHaveText("0 из 8");
+  await expect(page.locator("#moon-mission-count")).toHaveText("0 из 5");
   await expect(page.locator("#planet-list button.visited")).toHaveCount(0);
 
   await page.getByRole("button", { name: "Марс", exact: true }).last().click();
   await expect(page.locator("#mission-count")).toHaveText("1 из 8");
+  await expect(page.locator("#moon-mission-count")).toHaveText("0 из 5");
   await expect(page.locator('[data-planet="mars"]')).toHaveClass(/visited/);
   await expect(page.locator("#planet-list button.visited")).toHaveCount(1);
+
+  await page.locator('#planet-list [data-object="earth-moon-1"]').click();
+  await expect(page.locator("#mission-count")).toHaveText("1 из 8");
+  await expect(page.locator("#moon-mission-count")).toHaveText("1 из 5");
+  await expect(page.locator('[data-moon="earth-moon-1"]')).toHaveClass(/visited/);
 });
 
 test("shows the complete interactive planet navigator", async ({ page }) => {
   await expect(page).toHaveTitle(/КосмоДром/);
   await expect(page.locator("#planet-list button")).toHaveCount(15);
+  await expect(page.locator("#planet-list .destination-group")).toHaveCount(3);
   await expect(page.locator(".space-label")).toHaveCount(15);
   await expect(page.locator('[data-object="comet"]')).toHaveCount(2);
   await expect(page.locator("canvas")).toBeVisible();
@@ -139,5 +147,6 @@ test("places tour navigation on both sides and documents roll controls", async (
   );
   expect(order.indexOf("tourPrevBtn")).toBeLessThan(order.indexOf("tourBtn"));
   expect(order.indexOf("tourNextBtn")).toBeGreaterThan(order.indexOf("tourBtn"));
-  await expect(page.locator("#cockpit-frame span")).toContainText("Z/X · крен");
+  await expect(page.locator("#cockpit-frame span")).toContainText("←/→ · крен");
+  await expect(page.locator("#cockpit-frame span")).toContainText("↑/↓ · тангаж");
 });

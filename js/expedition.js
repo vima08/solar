@@ -20,7 +20,7 @@ export function createExpedition(world) {
   const rollSpeed = 1.05;
 
   addEventListener("keydown", (event) => {
-    if (["KeyW", "KeyA", "KeyS", "KeyD", "KeyQ", "KeyE", "KeyZ", "KeyX"].includes(event.code)) {
+    if (["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.code)) {
       keys.add(event.code);
       if (active) event.preventDefault();
     }
@@ -29,13 +29,13 @@ export function createExpedition(world) {
 
   function setActive(value) {
     active = value;
-    ship.visible = value;
+    ship.visible = true;
     world.controls.enabled = !value;
     document.body.classList.toggle("flight-mode", value);
     dispatchEvent(new CustomEvent("kosmodrom-flight-mode", { detail: value }));
     document.getElementById("flightBtn").setAttribute("aria-pressed", String(value));
     document.getElementById("flightBtn").textContent = value ? "◎ На объект" : "🚀 На корабль";
-    announce(value ? "Корабль готов. Z и X управляют креном." : "Режим выбора объекта включён.");
+    announce(value ? "Корабль готов. Стрелки управляют тангажом и креном." : "Режим выбора объекта включён, корабль остаётся на месте.");
   }
 
   function setCockpit(value) {
@@ -56,10 +56,10 @@ export function createExpedition(world) {
     const toTarget = targetPosition.clone().sub(ship.position);
     if (keys.has("KeyA")) ship.rotateY(turnSpeed * delta);
     if (keys.has("KeyD")) ship.rotateY(-turnSpeed * delta);
-    if (keys.has("KeyQ")) ship.rotateX(-turnSpeed * delta);
-    if (keys.has("KeyE")) ship.rotateX(turnSpeed * delta);
-    if (keys.has("KeyZ")) ship.rotateZ(rollSpeed * delta);
-    if (keys.has("KeyX")) ship.rotateZ(-rollSpeed * delta);
+    if (keys.has("ArrowUp")) ship.rotateX(-turnSpeed * delta);
+    if (keys.has("ArrowDown")) ship.rotateX(turnSpeed * delta);
+    if (keys.has("ArrowLeft")) ship.rotateZ(rollSpeed * delta);
+    if (keys.has("ArrowRight")) ship.rotateZ(-rollSpeed * delta);
     const forward = ship.getWorldDirection(new THREE.Vector3()).normalize();
     const thrust = new THREE.Vector3();
     if (keys.has("KeyW")) thrust.add(forward);
@@ -90,11 +90,14 @@ export function createExpedition(world) {
 
   function positionCamera(forward) {
     if (cockpit) {
-      world.camera.position.copy(ship.position).addScaledVector(forward, 0.9).add(new THREE.Vector3(0, 0.35, 0));
+      const cockpitOffset = new THREE.Vector3(0, 0.35, -0.35).applyQuaternion(ship.quaternion);
+      world.camera.position.copy(ship.position).add(cockpitOffset);
+      world.camera.quaternion.copy(ship.quaternion);
     } else {
+      world.camera.up.set(0, 1, 0);
       world.camera.position.lerp(ship.position.clone().addScaledVector(forward, -7).add(new THREE.Vector3(0, 3, 0)), 0.12);
+      world.camera.lookAt(ship.position.clone().addScaledVector(forward, 8));
     }
-    world.camera.lookAt(ship.position.clone().addScaledVector(forward, 8));
   }
 
   function updateHud(distance) {
@@ -154,7 +157,7 @@ function createShip() {
   const engine = new THREE.PointLight(0x58cfff, 3, 8);
   engine.position.z = 1;
   ship.add(hull, wing, engine);
-  ship.visible = false;
+  ship.visible = true;
   return ship;
 }
 
