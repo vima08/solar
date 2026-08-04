@@ -21,15 +21,24 @@ export function initUI(world) {
   const timeScale = document.getElementById("timeScale");
   const pauseButton = document.getElementById("pauseBtn");
   const progressKey = "visited-worlds-v2";
+  const moonProgressKey = "visited-moons-v1";
   const savedProgress = JSON.parse(localStorage.getItem(progressKey) ?? "[]");
+  const savedMoonProgress = JSON.parse(localStorage.getItem(moonProgressKey) ?? "[]");
   const visited = new Set(Array.isArray(savedProgress) ? savedProgress : []);
+  const visitedMoons = new Set(Array.isArray(savedMoonProgress) ? savedMoonProgress : []);
   function showInfo(config) {
     name.textContent = config.name;
     selected.textContent = config.name;
     description.innerHTML = `${config.description}<strong>💡 ${config.fact}</strong>`;
-    if (config.id && config.id !== "sun") {
+    const body = world.bodies.find((item) => item.config.id === config.id);
+    if (body?.type === "planet") {
       visited.add(config.id);
       localStorage.setItem(progressKey, JSON.stringify([...visited]));
+      updateProgress();
+    }
+    if (body?.type === "moon") {
+      visitedMoons.add(config.id);
+      localStorage.setItem(moonProgressKey, JSON.stringify([...visitedMoons]));
       updateProgress();
     }
     document.getElementById("announcement").textContent =
@@ -56,25 +65,59 @@ export function initUI(world) {
     navigation.flyTo(body);
   }
 
-  const destinationButtons = world.bodies.map((body) => {
+  const destinationButtons = [];
+  const planetList = document.getElementById("planet-list");
+  const childBodies = new Map();
+  world.bodies.forEach((body) => {
+    if (body.parentId) {
+      childBodies.set(body.parentId, [...(childBodies.get(body.parentId) ?? []), body]);
+    }
+  });
+
+  function createDestinationButton(body) {
     const button = document.createElement("button");
     button.textContent = body.config.name;
     button.dataset.object = body.config.id;
     if (body.type === "planet") button.dataset.planet = body.config.id;
+    if (body.type === "moon") button.dataset.moon = body.config.id;
     button.classList.toggle("secondary-object", body.type === "moon" || body.type === "comet");
     button.addEventListener("click", () => chooseBody(body));
+    destinationButtons.push(button);
     return button;
+  }
+
+  world.bodies.forEach((body) => {
+    if (body.type === "moon") return;
+    const moons = childBodies.get(body.config.id) ?? [];
+    if (body.type === "planet" && moons.length) {
+      const group = document.createElement("details");
+      group.className = "destination-group";
+      group.open = true;
+      const summary = document.createElement("summary");
+      summary.append(createDestinationButton(body));
+      group.append(summary, ...moons.map(createDestinationButton));
+      planetList.append(group);
+      return;
+    }
+    planetList.append(createDestinationButton(body));
   });
-  document.getElementById("planet-list").append(...destinationButtons);
   const planetButtons = destinationButtons.filter((button) => button.dataset.planet);
+  const moonButtons = destinationButtons.filter((button) => button.dataset.moon);
 
   function updateProgress() {
     const percent = Math.round((visited.size / planetButtons.length) * 100);
+    const moonPercent = Math.round((visitedMoons.size / moonButtons.length) * 100);
     document.getElementById("mission-progress").style.width = `${percent}%`;
     document.getElementById("mission-count").textContent =
       `${visited.size} из ${planetButtons.length}`;
+    document.getElementById("moon-mission-progress").style.width = `${moonPercent}%`;
+    document.getElementById("moon-mission-count").textContent =
+      `${visitedMoons.size} из ${moonButtons.length}`;
     planetButtons.forEach((button) =>
       button.classList.toggle("visited", visited.has(button.dataset.planet)),
+    );
+    moonButtons.forEach((button) =>
+      button.classList.toggle("visited", visitedMoons.has(button.dataset.moon)),
     );
   }
   updateProgress();

@@ -124,7 +124,7 @@ header {
 .gauges { margin-top:10px; color:#7f9bb3; font-size:9px; } .gauges b { display:block; margin-top:2px; color:white; font-size:14px; }
 .fuel { height:3px; margin:8px 0; border-radius:3px; background:#26334c; } .fuel i { display:block; width:100%; height:100%; background:linear-gradient(90deg,#40e69c,#d9ec69); }
 .route { color:#b7d3e8; font-size:12px; } #radio-message { margin:8px 0 0; padding-top:7px; border-top:1px solid var(--line); color:#88a6bb; font-size:10px; }
-#expedition-panel { position:fixed; right:20px; bottom:108px; width:230px; padding:14px; border-radius:18px; z-index:5; }
+#expedition-panel { position:fixed; left:20px; top:205px; width:275px; padding:14px; border-radius:18px; z-index:5; }
 #expedition-panel .eyebrow { color:var(--blue); font-size:9px; letter-spacing:1px; } #expedition-panel strong,#expedition-panel small { display:block; margin:5px 0; } #expedition-panel small { color:#91adc2; } #expedition-panel button { border:0; padding:6px 0; color:#67dcff; background:none; cursor:pointer; }
 .mode { display:flex; align-items:center; padding:0 6px; color:#a9c3d7; font-size:11px; }
 #sound-panel { position:fixed; left:20px; bottom:385px; width:180px; padding:10px 13px; border-radius:14px; z-index:7; color:#a9c3d7; font-size:11px; } #sound-panel summary { cursor:pointer; color:white; } #sound-panel label { display:grid; grid-template-columns:1fr 80px; align-items:center; margin-top:8px; } #sound-panel input { width:80px; }
@@ -139,6 +139,14 @@ header {
   display: block;
   margin-top: 5px;
   font-size: 14px;
+}
+#mission .moon-mission {
+  margin-top: 12px;
+  color: #dceeff;
+  font-size: 13px;
+}
+.moon-progress i {
+  background: linear-gradient(90deg, #6fe0ff, #d3f2ff);
 }
 .progress {
   height: 5px;
@@ -210,6 +218,26 @@ header {
 #planet-list {
   display: grid;
   gap: 4px;
+}
+.destination-group {
+  display: grid;
+  gap: 4px;
+}
+.destination-group summary {
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  align-items: center;
+  margin: 0;
+  list-style-position: inside;
+}
+.destination-group summary::marker {
+  color: #8fb5d0;
+}
+.destination-group summary button {
+  min-width: 0;
+}
+.destination-group > button {
+  margin-left: 16px;
 }
 #planet-list button {
   border: 0;

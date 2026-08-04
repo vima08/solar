@@ -10,10 +10,34 @@ function canvasTexture(draw) {
   const context = canvas.getContext("2d");
   draw(context);
 
+  blendHorizontalSeam(context);
+
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.anisotropy = 4;
+  texture.wrapS = THREE.RepeatWrapping;
   return texture;
+}
+
+function blendHorizontalSeam(context) {
+  const seamWidth = 96;
+  const left = context.getImageData(0, 0, seamWidth, HEIGHT);
+  const right = context.getImageData(WIDTH - seamWidth, 0, seamWidth, HEIGHT);
+  const blendedLeft = context.createImageData(seamWidth, HEIGHT);
+  const blendedRight = context.createImageData(seamWidth, HEIGHT);
+
+  for (let index = 0; index < left.data.length; index += 4) {
+    const x = (index / 4) % seamWidth;
+    const leftWeight = x / (seamWidth - 1);
+    const rightWeight = 1 - leftWeight;
+    for (let channel = 0; channel < 4; channel += 1) {
+      blendedLeft.data[index + channel] = left.data[index + channel] * leftWeight + right.data[index + channel] * rightWeight;
+      blendedRight.data[index + channel] = right.data[index + channel] * rightWeight + left.data[index + channel] * leftWeight;
+    }
+  }
+
+  context.putImageData(blendedLeft, 0, 0);
+  context.putImageData(blendedRight, WIDTH - seamWidth, 0);
 }
 
 function fill(context, color) {

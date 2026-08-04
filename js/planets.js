@@ -15,6 +15,7 @@ export function createPlanets() {
       object: moon.mesh,
       config: moon.config,
       type: "moon",
+      parentId: config.id,
     })));
   }
   return { group, bodies };
