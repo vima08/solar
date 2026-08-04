@@ -15,8 +15,10 @@ export function createNavigation(camera, controls, bodies, onSelect) {
   function flyTo(body, announce = true, preserveTour = false) {
     if (!preserveTour) stopTour();
     const target = worldPosition(body);
-    const direction = camera.position.clone().sub(controls.target).normalize();
-    const distance = Math.max(body.config.radius * 5.5, 8);
+    const direction = camera.position.clone().sub(controls.target);
+    if (direction.lengthSq() < 0.001) direction.set(0.35, 0.25, 1);
+    direction.normalize();
+    const distance = Math.max(body.config.radius * 7, 10);
     flight = {
       body,
       started: performance.now(),
@@ -100,7 +102,10 @@ export function createNavigation(camera, controls, bodies, onSelect) {
     const eased = 1 - Math.pow(1 - progress, 3);
     camera.position.lerpVectors(flight.fromPosition, flight.toPosition, eased);
     controls.target.lerpVectors(flight.fromTarget, flight.toTarget, eased);
-    if (progress === 1) flight = null;
+    if (progress === 1) {
+      if (flight.body) controls.minDistance = Math.max(flight.body.config.radius + 2, 4);
+      flight = null;
+    }
   }
 
   return {

@@ -15,6 +15,7 @@ export function createExpedition(world) {
   let simple = state.simple ?? true;
   let fuel = state.fuel ?? 100;
   let target = world.bodies.find((body) => body.config.id === (state.target ?? "earth"));
+  let crashed = Boolean(state.crashed);
   let lastSave = 0;
   const turnSpeed = 0.78;
   const rollSpeed = 1.05;
@@ -29,13 +30,17 @@ export function createExpedition(world) {
 
   function setActive(value) {
     active = value;
-    ship.visible = true;
+    ship.visible = !crashed;
     world.controls.enabled = !value;
     document.body.classList.toggle("flight-mode", value);
     dispatchEvent(new CustomEvent("kosmodrom-flight-mode", { detail: value }));
     document.getElementById("flightBtn").setAttribute("aria-pressed", String(value));
     document.getElementById("flightBtn").textContent = value ? "◎ На объект" : "🚀 На корабль";
-    announce(value ? "Корабль готов. Стрелки управляют тангажом и креном." : "Режим выбора объекта включён, корабль остаётся на месте.");
+    if (crashed) {
+      announce("Корабль разрушен. Нажми «На корабль», чтобы собрать новый корабль на стартовой орбите.");
+    } else {
+      announce(value ? "Корабль готов. Стрелки управляют тангажом и креном." : "Режим выбора объекта включён, корабль остаётся на месте.");
+    }
   }
 
   function setCockpit(value) {
@@ -52,12 +57,10 @@ export function createExpedition(world) {
 
   function update(delta) {
     if (!active) return;
-    const targetPosition = target.object.getWorldPosition(new THREE.Vector3());
-    const toTarget = targetPosition.clone().sub(ship.position);
     if (keys.has("KeyA")) ship.rotateY(turnSpeed * delta);
     if (keys.has("KeyD")) ship.rotateY(-turnSpeed * delta);
-    if (keys.has("ArrowUp")) ship.rotateX(-turnSpeed * delta);
-    if (keys.has("ArrowDown")) ship.rotateX(turnSpeed * delta);
+    if (keys.has("ArrowUp")) ship.rotateX(turnSpeed * delta);
+    if (keys.has("ArrowDown")) ship.rotateX(-turnSpeed * delta);
     if (keys.has("ArrowLeft")) ship.rotateZ(-rollSpeed * delta);
     if (keys.has("ArrowRight")) ship.rotateZ(rollSpeed * delta);
     const forward = ship.getWorldDirection(new THREE.Vector3()).normalize();
@@ -73,7 +76,13 @@ export function createExpedition(world) {
     velocity.clampLength(0, simple ? 8 : 15);
     ship.position.addScaledVector(velocity, delta);
 
-    const distance = toTarget.length();
+    const collision = findCollision(ship.position);
+    if (collision) {
+      crashInto(collision);
+      return;
+    }
+
+    const distance = target.object.getWorldPosition(new THREE.Vector3()).distanceTo(ship.position);
     const safeDistance = target.config.radius + 1.3;
     if (distance < safeDistance) {
       velocity.multiplyScalar(0.35);
@@ -86,6 +95,37 @@ export function createExpedition(world) {
     positionCamera(forward);
     updateHud(distance);
     if (performance.now() - lastSave > 2500) save();
+  }
+
+  function findCollision(position) {
+    return world.bodies.find((body) => {
+      const bodyPosition = body.object.getWorldPosition(new THREE.Vector3());
+      return bodyPosition.distanceTo(position) <= body.config.radius + 0.45;
+    });
+  }
+
+  function crashInto(body) {
+    crashed = true;
+    velocity.set(0, 0, 0);
+    setTarget(body);
+    setActive(false);
+    ship.visible = false;
+    world.navigation?.flyTo(body);
+    document.getElementById("flight-warning").textContent = `Столкновение: ${body.config.name}. Корабль разрушен!`;
+    announce(`Столкновение с объектом ${body.config.name}. Автопилот переключил обзор на объект.`);
+    save();
+  }
+
+  function respawnShip() {
+    crashed = false;
+    ship.position.copy(START);
+    velocity.set(0, 0, 0);
+    fuel = 100;
+    ship.visible = true;
+    world.camera.position.copy(ship.position).add(new THREE.Vector3(0, 3, 7));
+    updateHud(target.object.getWorldPosition(new THREE.Vector3()).distanceTo(ship.position));
+    save();
+    setActive(true);
   }
 
   function positionCamera(forward) {
@@ -123,11 +163,17 @@ export function createExpedition(world) {
 
   function save() {
     lastSave = performance.now();
-    Object.assign(state, { position: ship.position.toArray(), velocity: velocity.toArray(), fuel, simple, target: target.config.id });
+    Object.assign(state, { position: ship.position.toArray(), velocity: velocity.toArray(), fuel, simple, target: target.config.id, crashed });
     localStorage.setItem(SAVE_KEY, JSON.stringify(state));
   }
 
-  document.getElementById("flightBtn").addEventListener("click", () => setActive(!active));
+  document.getElementById("flightBtn").addEventListener("click", () => {
+    if (crashed && !active) {
+      respawnShip();
+      return;
+    }
+    setActive(!active);
+  });
   addEventListener("kosmodrom-target", (event) => {
     setTarget(event.detail);
     setActive(false);
@@ -144,6 +190,7 @@ export function createExpedition(world) {
   document.getElementById("physicsMode").checked = simple;
   document.getElementById("sample-count").textContent = String((state.samples ?? []).length);
   document.getElementById("active-mission").textContent = ["Доставь зонд на Марс", "Сфотографируй шторм Юпитера", "Пролети через кольца Сатурна", "Вернись на Землю"][state.mission ?? 0];
+  ship.visible = !crashed;
   setActive(false);
   updateRoute();
   return { update, setTarget, save };
