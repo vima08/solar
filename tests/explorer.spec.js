@@ -5,6 +5,16 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator("#loading")).toBeHidden({ timeout: 15_000 });
 });
 
+test("starts explorer progress empty and records only selected planets", async ({ page }) => {
+  await expect(page.locator("#mission-count")).toHaveText("0 из 8");
+  await expect(page.locator("#planet-list button.visited")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Марс", exact: true }).last().click();
+  await expect(page.locator("#mission-count")).toHaveText("1 из 8");
+  await expect(page.locator('[data-planet="mars"]')).toHaveClass(/visited/);
+  await expect(page.locator("#planet-list button.visited")).toHaveCount(1);
+});
+
 test("shows the complete interactive planet navigator", async ({ page }) => {
   await expect(page).toHaveTitle(/КосмоДром/);
   await expect(page.locator("#planet-list button")).toHaveCount(8);
@@ -25,7 +35,7 @@ test("flies to a planet and displays its educational fact", async ({
 
 test("controls simulation time, tour and home mode", async ({ page }) => {
   await page.locator("#fastBtn").click();
-  await expect(page.locator("#timeScale")).toHaveText("10×");
+  await expect(page.locator("#timeScale")).toHaveText("2×");
   await page.locator("#pauseBtn").click();
   await expect(page.locator("#pauseBtn")).toHaveAttribute(
     "aria-pressed",

@@ -30,6 +30,7 @@ export function createExpedition(world) {
     ship.visible = value;
     world.controls.enabled = !value;
     document.body.classList.toggle("flight-mode", value);
+    dispatchEvent(new CustomEvent("kosmodrom-flight-mode", { detail: value }));
     document.getElementById("flightBtn").setAttribute("aria-pressed", String(value));
     announce(value ? "Корабль готов. Используй W A S D, Q и E." : "Автопилот отключён.");
   }
