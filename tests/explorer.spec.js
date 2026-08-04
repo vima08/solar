@@ -49,12 +49,10 @@ test("saves exploration progress and opens the quiz", async ({ page }) => {
   await expect(page.locator("#quiz output")).toContainText("Верно");
 });
 
-test("provides tour and accessibility controls", async ({ page }) => {
-  await expect(page.locator("#tourDuration")).toHaveValue("5");
-  await page.locator("#contrastBtn").click();
-  await expect(page.locator("body")).toHaveClass(/high-contrast/);
-  await page.locator("#motionBtn").click();
-  await expect(page.locator("body")).toHaveClass(/reduce-motion/);
+test("keeps secondary controls out of the flight toolbar", async ({ page }) => {
+  for (const id of ["tourDuration", "voiceBtn", "contrastBtn", "motionBtn"]) {
+    await expect(page.locator(`#${id}`)).toHaveCount(0);
+  }
 });
 
 test("starts a saved expedition with cockpit instruments", async ({ page }) => {

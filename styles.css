@@ -343,20 +343,6 @@ header {
   content: " ✓";
   color: #65e6ad;
 }
-.duration {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 0 5px;
-  color: #9eb9cf;
-  font-size: 11px;
-}
-.duration select {
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  color: #fff;
-  background: #17233d;
-}
 #quiz {
   width: min(440px, calc(100% - 30px));
   border-radius: 24px;
@@ -389,20 +375,6 @@ header {
   min-height: 24px;
   margin-top: 16px;
   color: #7de7ff;
-}
-.high-contrast {
-  --panel: rgba(0, 0, 0, 0.96);
-  --line: #fff;
-}
-.high-contrast button {
-  outline: 1px solid #fff;
-}
-.reduce-motion *,
-.reduce-motion *::before,
-.reduce-motion *::after {
-  scroll-behavior: auto !important;
-  transition-duration: 0.01ms !important;
-  animation-duration: 0.01ms !important;
 }
 @media (prefers-reduced-motion: reduce) {
   *,
