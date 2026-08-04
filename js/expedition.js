@@ -38,6 +38,7 @@ export function createExpedition(world) {
   function setCockpit(value) {
     cockpit = value;
     document.body.classList.toggle("cockpit-mode", value);
+    dispatchEvent(new CustomEvent("kosmodrom-cockpit-mode", { detail: value }));
     document.getElementById("cockpitBtn").setAttribute("aria-pressed", String(value));
   }
 

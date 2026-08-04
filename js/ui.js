@@ -1,6 +1,18 @@
 import { getTime, togglePause, setTimeScale } from "./time.js";
 import { createNavigation } from "./navigation.js";
 import { createLabels } from "./labels.js";
+import { AMBIENT_AUDIO, ENGINE_AUDIO } from "./audio-resources.js";
+
+const QUIZ_QUESTIONS = [
+  { question: "Какую планету называют голубой?", answers: ["Марс", "Земля", "Сатурн"], correct: 1, fact: "Землю называют голубой планетой из-за океанов." },
+  { question: "Какая планета ближе всего к Солнцу?", answers: ["Венера", "Меркурий", "Марс"], correct: 1, fact: "Меркурий — ближайшая к Солнцу планета." },
+  { question: "У какой планеты самые заметные кольца?", answers: ["Сатурн", "Земля", "Нептун"], correct: 0, fact: "Кольца Сатурна состоят в основном из частиц льда и камня." },
+  { question: "Какая планета самая большая?", answers: ["Юпитер", "Уран", "Земля"], correct: 0, fact: "Юпитер — крупнейшая планета Солнечной системы." },
+  { question: "Как называется естественный спутник Земли?", answers: ["Титан", "Луна", "Европа"], correct: 1, fact: "Луна — единственный естественный спутник Земли." },
+  { question: "Какую планету называют красной?", answers: ["Марс", "Венера", "Нептун"], correct: 0, fact: "Оксиды железа придают поверхности Марса красноватый цвет." },
+  { question: "Какая планета вращается почти «лёжа на боку»?", answers: ["Меркурий", "Уран", "Юпитер"], correct: 1, fact: "Ось вращения Урана наклонена примерно на 98 градусов." },
+  { question: "Какая планета дальше всего от Солнца?", answers: ["Сатурн", "Уран", "Нептун"], correct: 2, fact: "Нептун — восьмая и самая далёкая планета." },
+];
 
 export function initUI(world) {
   const name = document.getElementById("planet-name");
@@ -117,31 +129,28 @@ function setupAudio() {
       musicGain.connect(context.destination);
       engineGain.connect(context.destination);
 
-      [110, 164.81, 220].forEach((frequency, index) => {
-        const tone = context.createOscillator();
-        const toneGain = context.createGain();
-        tone.type = "sine";
-        tone.frequency.value = frequency;
-        toneGain.gain.value = [0.45, 0.2, 0.12][index];
-        tone.connect(toneGain).connect(musicGain);
-        tone.start();
-      });
-      const motor = context.createOscillator();
-      motor.type = "sawtooth";
-      motor.frequency.value = 48;
-      motor.connect(engineGain);
-      motor.start();
+      createLoop(AMBIENT_AUDIO, musicGain);
+      createLoop(ENGINE_AUDIO, engineGain);
       updateAudioLevels();
     }
     context.resume();
   }
 
+  function createLoop(source, destination) {
+    const audio = new Audio(source);
+    audio.loop = true;
+    audio.preload = "auto";
+    context.createMediaElementSource(audio).connect(destination);
+    audio.play().catch(() => {});
+  }
+
   function updateAudioLevels() {
     if (!context) return;
     const now = context.currentTime;
-    musicGain.gain.setTargetAtTime(gainFor(music, 0.08), now, 0.05);
-    const flying = document.body.classList.contains("flight-mode");
-    engineGain.gain.setTargetAtTime(flying ? gainFor(engine, 0.035) : 0, now, 0.05);
+    musicGain.gain.setTargetAtTime(gainFor(music, 0.32), now, 0.15);
+    const engineAudible = document.body.classList.contains("flight-mode") &&
+      document.body.classList.contains("cockpit-mode");
+    engineGain.gain.setTargetAtTime(engineAudible ? gainFor(engine, 0.22) : 0, now, 0.08);
   }
 
   [engine, music].forEach((slider) => slider.addEventListener("input", () => {
@@ -151,24 +160,45 @@ function setupAudio() {
     document.getElementById("radio-message").textContent = `ЦУП: канал ${slider.dataset.channel} настроен на ${slider.value}%`;
   }));
   addEventListener("kosmodrom-flight-mode", updateAudioLevels);
+  addEventListener("kosmodrom-cockpit-mode", updateAudioLevels);
   addEventListener("pointerdown", startAudio, { once: true });
   addEventListener("keydown", startAudio, { once: true });
 }
 
 function setupQuiz() {
   const dialog = document.getElementById("quiz");
+  const title = dialog.querySelector("h2");
+  const answers = dialog.querySelector(".quiz-answers");
+  const result = dialog.querySelector("output");
+  const counter = dialog.querySelector(".quiz-counter");
+  let current = 0;
+
+  function showQuestion() {
+    const item = QUIZ_QUESTIONS[current];
+    counter.textContent = `Вопрос ${current + 1} из ${QUIZ_QUESTIONS.length}`;
+    title.textContent = item.question;
+    result.textContent = "";
+    answers.replaceChildren(...item.answers.map((answer, index) => {
+      const button = document.createElement("button");
+      button.textContent = answer;
+      button.addEventListener("click", () => {
+        if (index !== item.correct) {
+          result.textContent = "Почти! Попробуй ещё раз.";
+          return;
+        }
+        result.textContent = `Верно! ${item.fact} 🏅`;
+        setTimeout(() => {
+          current = (current + 1) % QUIZ_QUESTIONS.length;
+          showQuestion();
+        }, 1400);
+      });
+      return button;
+    }));
+  }
   document
     .getElementById("quizBtn")
-    .addEventListener("click", () => dialog.showModal());
+    .addEventListener("click", () => { showQuestion(); dialog.showModal(); });
   dialog
     .querySelector(".close-quiz")
     .addEventListener("click", () => dialog.close());
-  dialog.querySelectorAll("[data-answer]").forEach((button) => {
-    button.addEventListener("click", () => {
-      dialog.querySelector("output").textContent =
-        button.dataset.answer === "earth"
-          ? "Верно! Землю называют голубой планетой. 🏅"
-          : "Почти! Подсказка: на ней есть океаны.";
-    });
-  });
 }

@@ -57,6 +57,18 @@ test("saves exploration progress and opens the quiz", async ({ page }) => {
   await expect(page.locator("#quiz")).toBeVisible();
   await page.getByRole("button", { name: "Земля", exact: true }).last().click();
   await expect(page.locator("#quiz output")).toContainText("Верно");
+  await expect(page.locator("#quiz .quiz-counter")).toHaveText("Вопрос 2 из 8", { timeout: 3_000 });
+  await expect(page.locator("#quiz h2")).toContainText("ближе всего");
+});
+
+test("engine sound is enabled only in cockpit view", async ({ page }) => {
+  await page.locator("#flightBtn").click();
+  await expect(page.locator("body")).toHaveClass(/flight-mode/);
+  await expect(page.locator("body")).not.toHaveClass(/cockpit-mode/);
+  await page.locator("#cockpitBtn").click();
+  await expect(page.locator("body")).toHaveClass(/cockpit-mode/);
+  await page.locator("#cockpitBtn").click();
+  await expect(page.locator("body")).not.toHaveClass(/cockpit-mode/);
 });
 
 test("keeps secondary controls out of the flight toolbar", async ({ page }) => {
