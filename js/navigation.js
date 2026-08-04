@@ -50,8 +50,18 @@ export function createNavigation(camera, controls, bodies, onSelect) {
     stopTour(false);
     tourIndex = 0;
     document.body.classList.add("tour-active");
+    dispatchEvent(new CustomEvent("kosmodrom-tour", { detail: true }));
     flyTo(bodies[tourIndex], true, true);
     scheduleTour();
+  }
+
+  function toggleTour() {
+    if (tourTimer) {
+      stopTour();
+      return false;
+    }
+    startTour();
+    return true;
   }
 
   function scheduleTour() {
@@ -69,7 +79,10 @@ export function createNavigation(camera, controls, bodies, onSelect) {
   function stopTour(updateClass = true) {
     if (tourTimer) window.clearInterval(tourTimer);
     tourTimer = null;
-    if (updateClass) document.body.classList.remove("tour-active");
+    if (updateClass) {
+      document.body.classList.remove("tour-active");
+      dispatchEvent(new CustomEvent("kosmodrom-tour", { detail: false }));
+    }
   }
 
   function update() {
@@ -94,6 +107,7 @@ export function createNavigation(camera, controls, bodies, onSelect) {
     flyTo,
     goHome,
     startTour,
+    toggleTour,
     stopTour,
     stepTour,
     update,

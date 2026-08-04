@@ -46,22 +46,27 @@ export function initUI(world) {
     world.bodies,
     world.camera,
     world.renderer,
-    (body) => navigation.flyTo(body),
+    (body) => chooseBody(body),
   );
   world.navigation = navigation;
   world.labels = labels;
 
-  const planetButtons = world.bodies.slice(1).map((body) => {
+  function chooseBody(body) {
+    window.dispatchEvent(new CustomEvent("kosmodrom-target", { detail: body }));
+    navigation.flyTo(body);
+  }
+
+  const destinationButtons = world.bodies.map((body) => {
     const button = document.createElement("button");
     button.textContent = body.config.name;
-    button.dataset.planet = body.config.id;
-    button.addEventListener("click", () => {
-      window.dispatchEvent(new CustomEvent("kosmodrom-target", { detail: body }));
-      navigation.flyTo(body);
-    });
+    button.dataset.object = body.config.id;
+    if (body.type === "planet") button.dataset.planet = body.config.id;
+    button.classList.toggle("secondary-object", body.type === "moon" || body.type === "comet");
+    button.addEventListener("click", () => chooseBody(body));
     return button;
   });
-  document.getElementById("planet-list").append(...planetButtons);
+  document.getElementById("planet-list").append(...destinationButtons);
+  const planetButtons = destinationButtons.filter((button) => button.dataset.planet);
 
   function updateProgress() {
     const percent = Math.round((visited.size / planetButtons.length) * 100);
@@ -90,19 +95,20 @@ export function initUI(world) {
       timeScale.textContent = label;
     });
   });
-  document
-    .getElementById("tourBtn")
-    .addEventListener("click", () => navigation.startTour());
+  const tourButton = document.getElementById("tourBtn");
+  tourButton.addEventListener("click", () => {
+    const active = navigation.toggleTour();
+    tourButton.setAttribute("aria-pressed", String(active));
+  });
+  addEventListener("kosmodrom-tour", (event) =>
+    tourButton.setAttribute("aria-pressed", String(event.detail)),
+  );
   document
     .getElementById("tourPrevBtn")
     .addEventListener("click", () => navigation.stepTour(-1));
   document
     .getElementById("tourNextBtn")
     .addEventListener("click", () => navigation.stepTour(1));
-  document
-    .getElementById("resetBtn")
-    .addEventListener("click", () => navigation.goHome());
-
   setupQuiz();
   setupAudio();
 }

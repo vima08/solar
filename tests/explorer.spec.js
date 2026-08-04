@@ -17,9 +17,17 @@ test("starts explorer progress empty and records only selected planets", async (
 
 test("shows the complete interactive planet navigator", async ({ page }) => {
   await expect(page).toHaveTitle(/КосмоДром/);
-  await expect(page.locator("#planet-list button")).toHaveCount(8);
-  await expect(page.locator(".space-label")).toHaveCount(9);
+  await expect(page.locator("#planet-list button")).toHaveCount(15);
+  await expect(page.locator(".space-label")).toHaveCount(15);
+  await expect(page.locator('[data-object="comet"]')).toHaveCount(2);
   await expect(page.locator("canvas")).toBeVisible();
+});
+
+test("collapses and expands the destination list", async ({ page }) => {
+  await page.locator("#planet-nav summary").click();
+  await expect(page.locator("#planet-list")).not.toBeVisible();
+  await page.locator("#planet-nav summary").click();
+  await expect(page.locator("#planet-list")).toBeVisible();
 });
 
 test("keeps planet labels anchored while they grow on hover", async ({ page }) => {
@@ -54,7 +62,7 @@ test("flies to a planet and displays its educational fact", async ({
   );
 });
 
-test("controls simulation time, tour and home mode", async ({ page }) => {
+test("controls simulation time and toggles the tour", async ({ page }) => {
   await page.locator("#fastBtn").click();
   await expect(page.locator("#timeScale")).toHaveText("2×");
   await page.locator("#pauseBtn").click();
@@ -64,9 +72,10 @@ test("controls simulation time, tour and home mode", async ({ page }) => {
   );
   await page.locator("#tourBtn").click();
   await expect(page.locator("body")).toHaveClass(/tour-active/);
-  await page.locator("#resetBtn").click();
-  await expect(page.locator("#planet-name")).toHaveText("Солнечная система");
+  await expect(page.locator("#tourBtn")).toHaveAttribute("aria-pressed", "true");
+  await page.locator("#tourBtn").click();
   await expect(page.locator("body")).not.toHaveClass(/tour-active/);
+  await expect(page.locator("#tourBtn")).toHaveAttribute("aria-pressed", "false");
 });
 
 test("saves exploration progress and opens the quiz", async ({ page }) => {
@@ -110,4 +119,25 @@ test("starts a saved expedition with cockpit instruments", async ({ page }) => {
   await expect(page.locator("#ship-fuel")).not.toHaveText("100%");
   await page.locator("#missionAction").click();
   await expect(page.locator("#active-mission")).toContainText("Юпитера");
+});
+
+test("uses one button to switch between ship and object modes", async ({ page }) => {
+  const mode = page.locator("#flightBtn");
+  await expect(mode).toHaveText(/На корабль/);
+  await mode.click();
+  await expect(mode).toHaveText(/На объект/);
+  await expect(page.locator("body")).toHaveClass(/flight-mode/);
+  await page.locator('#planet-list [data-object="earth-moon-1"]').click();
+  await expect(page.locator("body")).not.toHaveClass(/flight-mode/);
+  await expect(mode).toHaveText(/На корабль/);
+  await expect(page.locator("#planet-name")).toHaveText("Луна");
+});
+
+test("places tour navigation on both sides and documents roll controls", async ({ page }) => {
+  const order = await page.locator("#controls > button").evaluateAll((buttons) =>
+    buttons.map((button) => button.id),
+  );
+  expect(order.indexOf("tourPrevBtn")).toBeLessThan(order.indexOf("tourBtn"));
+  expect(order.indexOf("tourNextBtn")).toBeGreaterThan(order.indexOf("tourBtn"));
+  await expect(page.locator("#cockpit-frame span")).toContainText("Z/X · крен");
 });
