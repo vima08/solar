@@ -6,7 +6,7 @@ export function createNavigation(camera, controls, bodies, onSelect) {
   let flight = null;
   let tourTimer = null;
   let tourIndex = 0;
-  let tourStopDuration = 5000;
+  const tourStopDuration = 5000;
 
   function worldPosition(body) {
     return body.object.getWorldPosition(new THREE.Vector3());
@@ -66,14 +66,6 @@ export function createNavigation(camera, controls, bodies, onSelect) {
     scheduleTour();
   }
 
-  function setTourDuration(seconds) {
-    tourStopDuration = seconds * 1000;
-    if (tourTimer) {
-      window.clearInterval(tourTimer);
-      scheduleTour();
-    }
-  }
-
   function stopTour(updateClass = true) {
     if (tourTimer) window.clearInterval(tourTimer);
     tourTimer = null;
@@ -104,7 +96,6 @@ export function createNavigation(camera, controls, bodies, onSelect) {
     startTour,
     stopTour,
     stepTour,
-    setTourDuration,
     update,
   };
 }

@@ -11,8 +11,6 @@ export function initUI(world) {
   const visited = new Set(
     JSON.parse(localStorage.getItem("visited-worlds") ?? "[]"),
   );
-  let narrationEnabled = false;
-
   function showInfo(config) {
     name.textContent = config.name;
     selected.textContent = config.name;
@@ -24,14 +22,6 @@ export function initUI(world) {
     }
     document.getElementById("announcement").textContent =
       `Выбрано: ${config.name}. ${config.description}`;
-    if (narrationEnabled && "speechSynthesis" in window) {
-      speechSynthesis.cancel();
-      speechSynthesis.speak(
-        new SpeechSynthesisUtterance(
-          `${config.name}. ${config.description} ${config.fact}`,
-        ),
-      );
-    }
   }
 
   const navigation = createNavigation(
@@ -98,28 +88,9 @@ export function initUI(world) {
     .getElementById("tourNextBtn")
     .addEventListener("click", () => navigation.stepTour(1));
   document
-    .getElementById("tourDuration")
-    .addEventListener("change", (event) =>
-      navigation.setTourDuration(Number(event.target.value)),
-    );
-  document
     .getElementById("resetBtn")
     .addEventListener("click", () => navigation.goHome());
 
-  document
-    .getElementById("contrastBtn")
-    .addEventListener("click", () =>
-      document.body.classList.toggle("high-contrast"),
-    );
-  document
-    .getElementById("motionBtn")
-    .addEventListener("click", () =>
-      document.body.classList.toggle("reduce-motion"),
-    );
-  document.getElementById("voiceBtn").addEventListener("click", (event) => {
-    narrationEnabled = !narrationEnabled;
-    event.currentTarget.setAttribute("aria-pressed", String(narrationEnabled));
-  });
   setupQuiz();
   setupAudio();
 }
