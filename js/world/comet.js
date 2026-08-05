@@ -1,9 +1,9 @@
 import * as THREE from "three";
 import { COLORS } from "../core/constants.js";
+import { COMET_ORBIT_X, COMET_ORBIT_Z } from "../core/constants.js";
 
 const INCLINATION = THREE.MathUtils.degToRad(58);
-const ORBIT_X = 86;
-const ORBIT_Z = 49;
+
 
 export function createComet() {
   const comet = new THREE.Group();
@@ -46,7 +46,7 @@ export function createComet() {
   const tailAxis = new THREE.Vector3(1, 0, 0);
   container.update = (time) => {
     const angle = time.elapsed * 0.055 + 1.15;
-    position.set(Math.cos(angle) * ORBIT_X, 0, Math.sin(angle) * ORBIT_Z);
+    position.set(Math.cos(angle) * COMET_ORBIT_X, 0, Math.sin(angle) * COMET_ORBIT_Z);
     position.applyAxisAngle(new THREE.Vector3(1, 0, 0), INCLINATION);
     comet.position.copy(position);
 
@@ -95,9 +95,9 @@ function createOrbitLine() {
   for (let index = 0; index <= 220; index += 1) {
     const angle = (index / 220) * Math.PI * 2;
     const point = new THREE.Vector3(
-      Math.cos(angle) * ORBIT_X,
+      Math.cos(angle) * COMET_ORBIT_X,
       0,
-      Math.sin(angle) * ORBIT_Z,
+      Math.sin(angle) * COMET_ORBIT_Z,
     );
     points.push(point.applyAxisAngle(new THREE.Vector3(1, 0, 0), INCLINATION));
   }

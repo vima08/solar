@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { SYSTEM_SCALE } from "../core/constants.js";
 
 export function createAsteroidBelt(count = 700) {
   const geometry = new THREE.IcosahedronGeometry(0.12, 0);
@@ -11,7 +12,7 @@ export function createAsteroidBelt(count = 700) {
 
   for (let index = 0; index < count; index += 1) {
     const angle = Math.random() * Math.PI * 2;
-    const radius = 33 + Math.random() * 3.8;
+    const radius = (33 + Math.random() * 3.8) * SYSTEM_SCALE;
     dummy.position.set(
       Math.cos(angle) * radius,
       (Math.random() - 0.5) * 1.2,

@@ -1,5 +1,8 @@
 export const PLANET_RADIUS_SCALE = 0.7;
 export const ORBIT_SCALE = 1;
+export const SYSTEM_SCALE = 10;
+export const COMET_ORBIT_X = 86 * SYSTEM_SCALE;
+export const COMET_ORBIT_Z = 49 * SYSTEM_SCALE;
 export const ORBIT_SPEED_SCALE = 0.12;
 export const ROTATION_SPEED_SCALE = 1;
 
@@ -19,7 +22,7 @@ export const PLANETS = [
     id: "mercury",
     name: "Меркурий",
     radius: 0.75,
-    distance: 10,
+    distance: 10 * SYSTEM_SCALE,
     color: 0xa9a9a9,
     orbitSpeed: 1.6,
     rotationSpeed: 0.25,
@@ -31,7 +34,7 @@ export const PLANETS = [
     id: "venus",
     name: "Венера",
     radius: 1.15,
-    distance: 15,
+    distance: 15 * SYSTEM_SCALE,
     color: 0xe6bd72,
     orbitSpeed: 1.2,
     rotationSpeed: -0.08,
@@ -42,7 +45,7 @@ export const PLANETS = [
     id: "earth",
     name: "Земля",
     radius: 1.25,
-    distance: 21,
+    distance: 21 * SYSTEM_SCALE,
     color: 0x3d83e8,
     orbitSpeed: 1,
     rotationSpeed: 1.2,
@@ -51,7 +54,7 @@ export const PLANETS = [
       {
         name: "Луна",
         radius: 0.34,
-        distance: 2.4,
+        distance: 2.4 * SYSTEM_SCALE,
         speed: 2.2,
         color: 0xbfc4cc,
       },
@@ -63,7 +66,7 @@ export const PLANETS = [
     id: "mars",
     name: "Марс",
     radius: 0.95,
-    distance: 28,
+    distance: 28 * SYSTEM_SCALE,
     color: 0xc85d3c,
     orbitSpeed: 0.8,
     rotationSpeed: 1.1,
@@ -74,23 +77,29 @@ export const PLANETS = [
     id: "jupiter",
     name: "Юпитер",
     radius: 3.3,
-    distance: 40,
+    distance: 40 * SYSTEM_SCALE,
     color: 0xd7b28a,
     orbitSpeed: 0.43,
     rotationSpeed: 2.1,
     moons: [
-      { name: "Ио", radius: 0.28, distance: 4.3, speed: 2.6, color: 0xe4c26e },
+      { 
+        name: "Ио",
+        radius: 0.28,
+        distance: 4.3 * SYSTEM_SCALE,
+        speed: 2.6,
+        color: 0xe4c26e
+      },
       {
         name: "Европа",
         radius: 0.24,
-        distance: 5.1,
+        distance: 5.1 * SYSTEM_SCALE,
         speed: 2,
         color: 0xc7b99c,
       },
       {
         name: "Ганимед",
         radius: 0.36,
-        distance: 6,
+        distance: 6.0 * SYSTEM_SCALE,
         speed: 1.5,
         color: 0x91857a,
       },
@@ -102,7 +111,7 @@ export const PLANETS = [
     id: "saturn",
     name: "Сатурн",
     radius: 2.8,
-    distance: 53,
+    distance: 53 * SYSTEM_SCALE,
     color: 0xe5cf8d,
     orbitSpeed: 0.32,
     rotationSpeed: 1.8,
@@ -111,7 +120,7 @@ export const PLANETS = [
       {
         name: "Титан",
         radius: 0.34,
-        distance: 5.1,
+        distance: 5.1 * SYSTEM_SCALE,
         speed: 1.2,
         color: 0xd6a855,
       },
@@ -123,7 +132,7 @@ export const PLANETS = [
     id: "uranus",
     name: "Уран",
     radius: 2,
-    distance: 65,
+    distance: 65 * SYSTEM_SCALE,
     color: 0x7ad5df,
     orbitSpeed: 0.23,
     rotationSpeed: -1.25,
@@ -135,7 +144,7 @@ export const PLANETS = [
     id: "neptune",
     name: "Нептун",
     radius: 1.95,
-    distance: 77,
+    distance: 77 * SYSTEM_SCALE,
     color: 0x4169d8,
     orbitSpeed: 0.18,
     rotationSpeed: 1.3,
