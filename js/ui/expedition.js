@@ -1,10 +1,10 @@
 import * as THREE from "three";
 import { EXPLOSION_AUDIO } from "../assets/audio-resources.js";
+import { createShipControls } from "./ship-controls.js";
 
 const SAVE_KEY = "kosmodrom-expedition-v1";
 const START = new THREE.Vector3(24, 2, 0);
 const SHIP_SCALE = 0.36;
-const FORWARD = new THREE.Vector3(0, 0, 1);
 const CAMERA_FORWARD_FIX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
 
 export function createExpedition(world) {
@@ -13,7 +13,6 @@ export function createExpedition(world) {
   const state = loadState();
   ship.position.fromArray(state.position ?? START.toArray());
   const velocity = new THREE.Vector3().fromArray(state.velocity ?? [0, 0, 0]);
-  const keys = new Set();
   const explosions = [];
   let active = false;
   let cockpit = false;
@@ -22,16 +21,12 @@ export function createExpedition(world) {
   let target = world.bodies.find((body) => body.config.id === (state.target ?? "earth"));
   let crashed = Boolean(state.crashed);
   let lastSave = 0;
-  const turnSpeed = 0.78;
-  const rollSpeed = 1.05;
-
-  addEventListener("keydown", (event) => {
-    if (["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.code)) {
-      keys.add(event.code);
-      if (active) event.preventDefault();
-    }
+  const shipControls = createShipControls(ship, velocity, {
+    isActive: () => active,
+    isSimple: () => simple,
+    hasFuel: () => fuel > 0,
+    consumeFuel: (amount) => { fuel = Math.max(0, fuel - amount); },
   });
-  addEventListener("keyup", (event) => keys.delete(event.code));
 
   function setActive(value) {
     active = value;
@@ -63,21 +58,8 @@ export function createExpedition(world) {
   function update(delta) {
     updateExplosions(delta);
     if (!active) return;
-    if (keys.has("KeyA")) ship.rotateY(turnSpeed * delta);
-    if (keys.has("KeyD")) ship.rotateY(-turnSpeed * delta);
-    if (keys.has("ArrowUp")) ship.rotateX(turnSpeed * delta);
-    if (keys.has("ArrowDown")) ship.rotateX(-turnSpeed * delta);
-    if (keys.has("ArrowLeft")) ship.rotateZ(-rollSpeed * delta);
-    if (keys.has("ArrowRight")) ship.rotateZ(rollSpeed * delta);
-    const forward = getShipForward(ship);
-    const thrust = new THREE.Vector3();
-    if (keys.has("KeyW")) thrust.add(forward);
-    if (keys.has("KeyS")) thrust.sub(forward);
-    if (thrust.lengthSq() && fuel > 0) {
-      velocity.addScaledVector(thrust.normalize(), delta * (simple ? 10 : 5));
-      fuel = Math.max(0, fuel - delta * 0.7);
-    }
-    updateFlame(ship, thrust.lengthSq() > 0 && fuel > 0);
+    const { forward, hasThrust } = shipControls.update(delta);
+    updateFlame(ship, hasThrust);
     if (simple) velocity.multiplyScalar(Math.pow(0.12, delta));
     else applyGravity(world.bodies, ship.position, velocity, delta);
     velocity.clampLength(0, simple ? 8 : 15);
@@ -244,10 +226,6 @@ export function createExpedition(world) {
   setActive(false);
   updateRoute();
   return { update, setTarget, save };
-}
-
-function getShipForward(ship) {
-  return FORWARD.clone().applyQuaternion(ship.quaternion).normalize();
 }
 
 function updateFlame(ship, enabled) {
