@@ -19,12 +19,17 @@ export function createShipControls(ship, velocity, options) {
 
   addEventListener("keydown", (event) => {
     if (!CONTROL_KEYS.includes(event.code)) return;
+    if (event.target.closest?.("input, textarea, select")) return;
+    if (event.code.startsWith("Arrow") && event.target.closest?.("button, summary, [role='tab']")) return;
     keys.add(event.code);
     if (options.isActive()) event.preventDefault();
   });
   addEventListener("keyup", (event) => keys.delete(event.code));
+  addEventListener("blur", () => keys.clear());
+  addEventListener("kosmodrom-flight-mode", () => keys.clear());
 
   function update(delta) {
+    if (!options.isActive()) return { forward: getShipForward(ship), hasThrust: false };
     if (keys.has("KeyA")) ship.rotateY(TURN_SPEED * delta);
     if (keys.has("KeyD")) ship.rotateY(-TURN_SPEED * delta);
     if (keys.has("ArrowUp")) ship.rotateX(TURN_SPEED * delta);

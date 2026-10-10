@@ -1,4 +1,4 @@
-const CACHE = "kosmodrom-v5";
+const CACHE = "kosmodrom-v6";
 const APP_SHELL = ["./", "./index.html", "./styles.css", "./js/main.js", "./js/ui/expedition.js"];
 
 self.addEventListener("install", (event) =>

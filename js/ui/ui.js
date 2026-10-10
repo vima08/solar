@@ -1,11 +1,14 @@
 import { getTime, togglePause, setTimeScale } from "../core/time.js";
 import { createNavigation } from "./navigation.js";
 import { createLabels } from "./labels.js";
-import { AMBIENT_AUDIO, ENGINE_AUDIO } from "../assets/audio-resources.js";
+import { ENGINE_AUDIO } from "../assets/audio-resources.js";
+import { createAmbient } from "../assets/ambient.js";
+import { setupDashboard } from "./dashboard.js";
 
 import { setupQuiz } from "./quiz.js";
 
 export function initUI(world) {
+  setupDashboard();
   const name = document.getElementById("planet-name");
   const description = document.getElementById("planet-description");
   const selected = document.getElementById("selected");
@@ -17,6 +20,7 @@ export function initUI(world) {
     name.textContent = config.name;
     selected.textContent = config.name;
     description.innerHTML = `${config.description}<strong>💡 ${config.fact}</strong>`;
+    document.getElementById("planet-panel").open = true;
     const body = world.bodies.find((item) => item.config.id === config.id);
     if (body?.type === "planet") {
       visited.add(config.id);
@@ -183,11 +187,11 @@ function setupAudio() {
       musicGain.connect(context.destination);
       engineGain.connect(context.destination);
 
-      createLoop(AMBIENT_AUDIO, musicGain);
+      createAmbient(context, musicGain);
       createLoop(ENGINE_AUDIO, engineGain);
       updateAudioLevels();
     }
-    context.resume();
+    context.resume().catch(() => {});
   }
 
   function createLoop(source, destination) {
@@ -202,7 +206,7 @@ function setupAudio() {
     if (!context) return;
     const now = context.currentTime;
     musicGain.gain.setTargetAtTime(gainFor(music, 0.32), now, 0.15);
-    const engineAudible = document.body.classList.contains("flight-mode") &&
+    const engineAudible = !document.body.classList.contains("landed-mode") && document.body.classList.contains("flight-mode") &&
       document.body.classList.contains("cockpit-mode");
     engineGain.gain.setTargetAtTime(engineAudible ? gainFor(engine, 0.22) : 0, now, 0.08);
   }
@@ -215,6 +219,12 @@ function setupAudio() {
   }));
   addEventListener("kosmodrom-flight-mode", updateAudioLevels);
   addEventListener("kosmodrom-cockpit-mode", updateAudioLevels);
+  addEventListener("kosmodrom-landing", updateAudioLevels);
+  document.addEventListener("visibilitychange", () => {
+    if (!context) return;
+    if (document.hidden) context.suspend();
+    else context.resume().catch(() => {});
+  });
   addEventListener("pointerdown", startAudio, { once: true });
   addEventListener("keydown", startAudio, { once: true });
 }

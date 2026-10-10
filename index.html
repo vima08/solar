@@ -32,7 +32,49 @@
       ><span>СКОРОСТЬ<b id="timeScale">0.2×</b></span
       ><span>ЦЕЛЬ<b id="selected">Солнце</b></span>
     </aside>
-    <details id="mission" class="glass collapsible-panel">
+    <aside id="dashboard" class="glass" aria-label="Бортовой пульт">
+      <div class="dashboard-heading"><span>БОРТОВОЙ ПУЛЬТ</span><button id="closeDashboard" aria-label="Закрыть пульт">×</button></div>
+      <div class="dashboard-tabs" role="tablist" aria-label="Разделы пульта">
+        <button id="tab-route" role="tab" aria-selected="true" aria-controls="panel-route" data-tab="route">Маршрут</button>
+        <button id="tab-ship" role="tab" aria-selected="false" aria-controls="panel-ship" data-tab="ship" tabindex="-1">Корабль</button>
+        <button id="tab-missions" role="tab" aria-selected="false" aria-controls="panel-missions" data-tab="missions" tabindex="-1">Миссии</button>
+        <button id="tab-settings" role="tab" aria-selected="false" aria-controls="panel-settings" data-tab="settings" tabindex="-1">Настройки</button>
+      </div>
+      <div class="dashboard-content">
+        <section id="panel-route" role="tabpanel" aria-labelledby="tab-route"><details id="planet-nav" class="glass" open>
+      <summary><span>Куда летим?</span><label class="label-toggle"><input id="labelsHidden" type="checkbox" /> Скрыть лэйблы</label></summary>
+      <div id="planet-list"></div>
+    </details>
+<details id="planet-panel" class="glass collapsible-panel">
+      <summary>Бортовой компьютер</summary>
+      <div class="panel-content">
+        <h2 id="planet-name">Солнце</h2>
+        <div id="planet-description">
+          Добро пожаловать в нашу Солнечную систему!<strong
+            >💡 Выбери планету в маршруте или включи экскурсию.</strong
+          >
+        </div>
+      </div>
+    </details></section>
+        <section id="panel-ship" role="tabpanel" aria-labelledby="tab-ship" hidden><aside id="flight-hud" class="glass" aria-label="Приборы корабля">
+      <div class="hud-title"><span>КОРАБЛЬ «ИСКРА»</span><b id="flight-warning">Системы в норме</b></div>
+      <div class="gauges"><span>СКОРОСТЬ<b id="ship-speed">0.0 км/с</b></span><span>ДО ЦЕЛИ<b id="ship-distance">—</b></span><span>ТОПЛИВО<b id="ship-fuel">100%</b></span></div>
+      <div class="fuel"><i id="fuel-level"></i></div>
+      <div class="route"><span>◎ <b id="route-target">Земля</b></span><span id="route-eta">≈ 4 мин</span></div>
+      <p id="radio-message">ЦУП: связь установлена · субтитры включены</p>
+    <div class="button-row"><button id="cockpitBtn" aria-pressed="false">◉ Кабина</button
+      ><label class="mode"><input id="physicsMode" type="checkbox" /> Простой режим</label
+      ><button id="refuelBtn">⛽ Заправить</button>
+    </div><p class="help-text">W/S — тяга · A/D — поворот<br>↑/↓ — тангаж · ←/→ — крен</p><p class="help-text">Подлети к планете или луне — кнопка посадки загорится зелёным. После посадки можно взлететь. Заправка доступна на Земле.</p></aside></section>
+        <section id="panel-missions" role="tabpanel" aria-labelledby="tab-missions" hidden><details id="expedition-panel" open class="glass collapsible-panel">
+      <summary>Активная миссия</summary>
+      <div class="panel-content">
+        <strong id="active-mission">Доставь зонд на Марс</strong>
+        <p id="mission-status" role="status">Посади корабль на Марс, чтобы доставить зонд.</p>
+        <small>Образцы: <b id="sample-count">0</b></small><button id="missionAction">Показать цель →</button>
+      </div>
+    </details>
+<details id="mission" class="glass collapsible-panel">
       <summary>⭐ Миссия исследователя</summary>
       <div class="panel-content">
         <strong
@@ -43,56 +85,27 @@
         <strong class="moon-mission">Исследуй луны · <span id="moon-mission-count">0 из 5</span></strong>
         <div class="progress moon-progress"><i id="moon-mission-progress"></i></div>
       </div>
-    </details>
-    <details id="planet-nav" class="glass" open>
-      <summary><span>Куда летим?</span><label class="label-toggle"><input id="labelsHidden" type="checkbox" /> Скрыть лэйблы</label></summary>
-      <div id="planet-list"></div>
-    </details>
-    <aside id="flight-hud" class="glass" aria-label="Приборы корабля">
-      <div class="hud-title"><span>КОРАБЛЬ «ИСКРА»</span><b id="flight-warning">Системы в норме</b></div>
-      <div class="gauges"><span>СКОРОСТЬ<b id="ship-speed">0.0 км/с</b></span><span>ДО ЦЕЛИ<b id="ship-distance">—</b></span><span>ТОПЛИВО<b id="ship-fuel">100%</b></span></div>
-      <div class="fuel"><i id="fuel-level"></i></div>
-      <div class="route"><span>◎ <b id="route-target">Земля</b></span><span id="route-eta">≈ 4 мин</span></div>
-      <p id="radio-message">ЦУП: связь установлена · субтитры включены</p>
-    </aside>
-    <details id="expedition-panel" class="glass collapsible-panel">
-      <summary>Активная миссия</summary>
-      <div class="panel-content">
-        <strong id="active-mission">Доставь зонд на Марс</strong>
-        <small>Образцы: <b id="sample-count">0</b> · второй пилот: навигатор</small><button id="missionAction">Следующая миссия →</button>
-      </div>
-    </details>
-    <details id="planet-panel" class="glass collapsible-panel">
-      <summary>Бортовой компьютер</summary>
-      <div class="panel-content">
-        <h2 id="planet-name">Солнце</h2>
-        <div id="planet-description">
-          Добро пожаловать в нашу Солнечную систему!<strong
-            >💡 Выбери планету справа или включи экскурсию.</strong
-          >
-        </div>
-      </div>
-    </details>
-    <div id="hint">
-      🖱 Вращай мышью · приближай колёсиком · нажимай на подписи
-    </div>
-    <nav id="controls" class="glass" aria-label="Управление полётом">
+    </details></section>
+        <section id="panel-settings" role="tabpanel" aria-labelledby="tab-settings" hidden><details id="sound-panel" open class="glass"><summary>♫ Звук</summary>
+      <label>Музыка <input id="musicVolume" data-channel="музыки" type="range" min="0" max="100" /></label>
+      <label>Двигатель <input id="engineVolume" data-channel="двигателя" type="range" min="0" max="100" /></label>
+    </details><div class="settings-section"><h3>Время и исследование</h3><div class="button-row">
       <button id="pauseBtn" aria-pressed="false">⏸ Пауза</button
       ><button id="slowBtn">🐢 0.04×</button><button id="normalBtn">▶ 0.2×</button
       ><button id="fastBtn">⚡ 2×</button
       ><button id="tourPrevBtn" title="Предыдущая остановка">‹</button
       ><button id="tourBtn" aria-pressed="false">🛰 Экскурсия</button
       ><button id="tourNextBtn" title="Следующая остановка">›</button
-      ><button id="quizBtn">❓ Викторина</button
-      ><button id="flightBtn" aria-pressed="false">🚀 На корабль</button
-      ><button id="cockpitBtn" aria-pressed="false">◉ Кабина</button
-      ><label class="mode"><input id="physicsMode" type="checkbox" /> Простой режим</label
-      ><button id="refuelBtn">⛽ Заправить</button>
+      ><button id="quizBtn">❓ Викторина</button</div></div></section>
+      </div>
+    </aside>
+    <nav id="controls" class="glass" aria-label="Управление полётом">
+      <button id="dashboardBtn" aria-controls="dashboard" aria-expanded="true">☰ Пульт</button>
+      <button id="flightBtn" aria-pressed="false">🚀 На корабль</button>
+      <button id="autopilotBtn" aria-pressed="false" disabled>◎ К цели</button>
+      <button id="landBtn" disabled>↓ Посадка</button>
     </nav>
-    <details id="sound-panel" class="glass"><summary>♫ Звук</summary>
-      <label>Музыка <input id="musicVolume" data-channel="музыки" type="range" min="0" max="100" /></label>
-      <label>Двигатель <input id="engineVolume" data-channel="двигателя" type="range" min="0" max="100" /></label>
-    </details>
+    <div id="hint">Выбери цель в пульте · перейди на корабль · включи автопилот</div>
     <div id="cockpit-frame" aria-hidden="true"><i></i><i></i><span>W/S · тяга &nbsp; A/D · рысканье &nbsp; ↑/↓ · тангаж &nbsp; ←/→ · крен</span></div>
     <dialog id="quiz" class="glass">
       <form method="dialog">
