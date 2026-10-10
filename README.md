@@ -16,7 +16,7 @@ npx playwright install chromium
 npm test
 ```
 
-> Three.js загружается через import map с unpkg, поэтому для первого запуска нужен доступ к сети.
+> Three.js загружается через import map из `node_modules`, поэтому перед запуском выполните `npm install`. Workflow GitHub Pages устанавливает и публикует эту зависимость автоматически; сайт доступен по пути `/solar/`.
 
 ## Управление
 
