@@ -24,7 +24,7 @@
       <span class="logo-mark">🚀</span
       ><span class="brand"
         ><b>КосмоДром</b
-        ><small>Солнечная система для юных исследователей</small></span
+        ><small>Твой корабль. Твои открытия.</small></span
       >
     </header>
     <aside id="stats" class="glass">
@@ -66,7 +66,18 @@
       ><label class="mode"><input id="physicsMode" type="checkbox" /> Простой режим</label
       ><button id="refuelBtn">⛽ Заправить</button>
     </div><p class="help-text">W/S — тяга · A/D — поворот<br>↑/↓ — тангаж · ←/→ — крен</p><p class="help-text">Подлети к планете или луне — кнопка посадки загорится зелёным. После посадки можно взлететь. Заправка доступна на Земле.</p></aside></section>
-        <section id="panel-missions" role="tabpanel" aria-labelledby="tab-missions" hidden><details id="expedition-panel" open class="glass collapsible-panel">
+        <section id="panel-missions" role="tabpanel" aria-labelledby="tab-missions" hidden>
+          <article id="contract-panel" class="glass" aria-labelledby="contract-title">
+            <div class="contract-kicker">КОНТРАКТ · <span id="contract-status">ДОСТУПЕН</span></div>
+            <h2 id="contract-title">Аппаратура для «Ареса»</h2>
+            <p class="help-text">Марсианская станция ждёт оборудование для изучения пород. Получите груз на Земле и доставьте его на Марс.</p>
+            <div class="career-gauges"><span>БАЛАНС<b><span id="credit-count">0</span> кр.</b></span><span>ГРУЗ<b id="cargo-count">0 / 2</b></span><span>НАГРАДА<b>100 кр.</b></span></div>
+            <p id="contract-cargo" class="help-text">Контрактный отсек пуст</p>
+            <p id="contract-journal" role="status"></p>
+            <div class="button-row"><button id="contractRoute">Маршрут к Земле</button><button id="contractAction" disabled>Принять контракт</button></div>
+            <p class="help-text">Ориентир: 5–10 минут до награды. В круизе можно отменить автопилот и продолжить позже.</p>
+          </article>
+          <details id="expedition-panel" open class="glass collapsible-panel">
       <summary>Активная миссия</summary>
       <div class="panel-content">
         <strong id="active-mission">Доставь зонд на Марс</strong>
@@ -96,7 +107,18 @@
       ><button id="tourPrevBtn" title="Предыдущая остановка">‹</button
       ><button id="tourBtn" aria-pressed="false">🛰 Экскурсия</button
       ><button id="tourNextBtn" title="Следующая остановка">›</button
-      ><button id="quizBtn">❓ Викторина</button</div></div></section>
+      ><button id="quizBtn">❓ Викторина</button></div></div>
+          <section class="glass" aria-labelledby="input-heading"><h3 id="input-heading">Управление</h3>
+            <label class="touch-option"><input id="touchEnabled" type="checkbox" /> Экранные аналоговые стики</label>
+            <p class="help-text">Закройте пульт во время ручного полёта. Левый стик: тяга и поворот. Правый: тангаж и крен. Клавиатура также работает.</p>
+          </section>
+          <section id="save-panel" class="glass" aria-labelledby="save-heading"><h3 id="save-heading">Сохранение и загрузка</h3>
+            <p id="save-status" role="status">Прогресс сохраняется в этом браузере.</p>
+            <div class="button-row"><button id="exportSaveBtn">Скачать JSON</button><label class="file-button" for="importSaveFile">Загрузить JSON</label><input id="importSaveFile" class="sr-only" type="file" accept=".json,application/json" /></div>
+            <button id="restoreSaveBtn" hidden>Применить восстановление</button>
+            <p class="help-text">Файл переносит корабль, контракт, деньги, миссии и исследования. Перед заменой появится подтверждение. Настройки звука не переносятся.</p>
+          </section>
+        </section>
       </div>
     </aside>
     <nav id="controls" class="glass" aria-label="Управление полётом">
@@ -104,7 +126,19 @@
       <button id="flightBtn" aria-pressed="false">🚀 На корабль</button>
       <button id="autopilotBtn" aria-pressed="false" disabled>◎ К цели</button>
       <button id="landBtn" disabled>↓ Посадка</button>
+      <button id="contractBtn">Журнал</button>
     </nav>
+    <div id="voyage-status" class="glass">ЗЕМЛЯ → МАРС · 100 кр.</div>
+    <button id="saveWarning" hidden aria-label="Проблема сохранения: открыть настройки"></button>
+    <aside id="cruise-progress" class="glass" hidden aria-label="Контрактный круиз">
+      <div class="cruise-heading">КУРС НА МАРС <b id="cruise-time">5:00</b></div>
+      <progress id="cruise-bar" max="300" value="0" aria-label="Прогресс перелёта"></progress>
+      <p id="cruise-radio"></p>
+    </aside>
+    <div id="touch-controls" hidden aria-label="Сенсорное управление">
+      <div class="stick-group"><span>ТЯГА / ПОВОРОТ</span><div id="thrust-stick" class="analog-stick" aria-label="Левый стик: тяга и поворот"><i class="stick-thumb"></i></div></div>
+      <div class="stick-group"><span>ТАНГАЖ / КРЕН</span><div id="attitude-stick" class="analog-stick" aria-label="Правый стик: тангаж и крен"><i class="stick-thumb"></i></div></div>
+    </div>
     <div id="hint">Выбери цель в пульте · перейди на корабль · включи автопилот</div>
     <div id="cockpit-frame" aria-hidden="true"><i></i><i></i><span>W/S · тяга &nbsp; A/D · рысканье &nbsp; ↑/↓ · тангаж &nbsp; ←/→ · крен</span></div>
     <dialog id="quiz" class="glass">
@@ -115,6 +149,14 @@
       <h2>Какую планету называют голубой?</h2>
       <div class="quiz-answers"></div>
       <output aria-live="polite"></output>
+    </dialog>
+    <dialog id="import-dialog" class="glass" aria-labelledby="import-heading">
+      <h2 id="import-heading">Загрузить рейс из файла?</h2>
+      <p id="import-summary"></p>
+      <p class="help-text">Перед заменой рекомендуем скачать текущий рейс.</p>
+      <p id="import-error" role="alert"></p>
+      <div class="button-row"><button id="backupSaveBtn" type="button">Скачать текущий рейс</button><button id="confirmImportBtn" type="button">Заменить и загрузить</button></div>
+      <form method="dialog"><button value="cancel">Отмена</button></form>
     </dialog>
     <script type="importmap">
       {

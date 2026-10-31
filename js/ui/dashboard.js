@@ -4,6 +4,8 @@ export function setupDashboard() {
   const tabs = [...document.querySelectorAll("[data-tab]")];
   function setOpen(open) {
     dashboard.hidden = !open;
+    document.body.classList.toggle("dashboard-open", open);
+    dispatchEvent(new Event("kosmodrom-input-reset"));
     toggle.setAttribute("aria-expanded", String(open));
   }
   function selectTab(id) {

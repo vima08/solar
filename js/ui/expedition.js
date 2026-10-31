@@ -1,8 +1,12 @@
 import * as THREE from "three";
 import { EXPLOSION_AUDIO } from "../assets/audio-resources.js";
 import { createShipControls, getShipForward } from "./ship-controls.js";
+import { CONTRACT, createFlightClock } from "../game/contracts.js";
+import { setupContracts } from "./contracts.js";
+import { setupSaveControls } from "./save-controls.js";
+import { createTouchControls } from "./touch-controls.js";
+import { getTime } from "../core/time.js";
 
-const SAVE_KEY = "kosmodrom-expedition-v1";
 const START = new THREE.Vector3(24, 2, 0);
 const SHIP_SCALE = 0.36;
 const GIANTS = new Set(["jupiter", "saturn", "uranus", "neptune"]);
@@ -17,8 +21,10 @@ export function createExpedition(world) {
   );
   landingPad.visible = false;
   world.scene.add(landingPad);
-  const state = loadState();
+  const store = world.saveStore;
+  const state = store.state;
   ship.position.fromArray(state.position ?? START.toArray());
+  if (state.quaternion) ship.quaternion.fromArray(state.quaternion).normalize();
   const velocity = new THREE.Vector3().fromArray(state.velocity ?? [0, 0, 0]);
   const explosions = [];
   let active = false;
@@ -32,6 +38,8 @@ export function createExpedition(world) {
   let landedBody = world.bodies.find((body) => body.config.id === state.landedOn) ?? null;
   const landedOffset = new THREE.Vector3().fromArray(state.landedOffset ?? [0, 1, 0]);
   let autopilot = null;
+  const flightClock = createFlightClock();
+  const touch = createTouchControls();
   let previousTargetPosition = target.object.getWorldPosition(new THREE.Vector3());
   const landButton = document.getElementById("landBtn");
   const autopilotButton = document.getElementById("autopilotBtn");
@@ -42,11 +50,21 @@ export function createExpedition(world) {
   ];
   state.deliveryMission = Math.min(Math.max(Number(state.deliveryMission) || 0, 0), missions.length);
   const shipControls = createShipControls(ship, velocity, {
-    isActive: () => active && !landedBody && !autopilot,
+    isActive: () => active && !landedBody && !autopilot && !getTime().paused,
     isSimple: () => simple,
     hasFuel: () => fuel > 0,
     consumeFuel: (amount) => { fuel = Math.max(0, fuel - amount); },
+    analog: touch.axes,
   });
+  const contracts = setupContracts({ store, landedOn: () => landedBody?.config.id ?? null, chooseDestination, save });
+  setupSaveControls(store, snapshot, world.bodies);
+
+  function chooseDestination(id) {
+    const body = world.bodies.find((item) => item.config.id === id);
+    dispatchEvent(new CustomEvent("kosmodrom-target", { detail: body }));
+    world.navigation.flyTo(body);
+    dispatchEvent(new CustomEvent("kosmodrom-open-tab", { detail: "ship" }));
+  }
 
   function setActive(value) {
     active = value;
@@ -81,6 +99,7 @@ export function createExpedition(world) {
   }
 
   function update(delta) {
+    const activeDelta = flightClock.step(performance.now(), active && !getTime().paused && !document.hidden);
     delta = Math.min(delta, 0.05);
     updateExplosions(delta);
     const center = target.object.getWorldPosition(new THREE.Vector3());
@@ -95,9 +114,11 @@ export function createExpedition(world) {
     }
     landingPad.visible = Boolean(landedBody);
     if (!active) { previousTargetPosition.copy(center); return; }
-    if (!landedBody) {
+    if (!landedBody && !getTime().paused && !document.hidden && !document.querySelector("dialog[open]")) {
       if (autopilot) {
-        autopilot.elapsed += delta;
+        const step = autopilot.contract ? activeDelta : delta;
+        autopilot.elapsed = Math.min(autopilot.duration, autopilot.elapsed + step);
+        if (autopilot.contract) state.career.flightSeconds = Math.min(CONTRACT.cruiseSeconds, autopilot.startSeconds + autopilot.elapsed);
         const progress = Math.min(1, autopilot.elapsed / autopilot.duration);
         const eased = progress * progress * (3 - 2 * progress);
         const offset = autopilot.from.clone().lerp(autopilot.to, eased);
@@ -105,7 +126,7 @@ export function createExpedition(world) {
         ship.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), offset.clone().negate().normalize());
         velocity.set(0, 0, 0);
         updateFlame(ship, true);
-        if (progress >= 1) { stopAutopilot(); announce("Прибытие к цели. Теперь можно выполнить посадку."); }
+        if (progress >= 1) { stopAutopilot(); announce("Прибытие к цели. Теперь можно выполнить посадку."); save(); }
       } else {
         // Follow the local orbital frame so nearby moving planets remain reachable.
         if (ship.position.distanceTo(previousTargetPosition) < target.config.radius + 24) {
@@ -128,6 +149,17 @@ export function createExpedition(world) {
     document.getElementById("flight-warning").textContent = landedBody ?
       `${GIANTS.has(landedBody.config.id) ? "На платформе" : "На поверхности"}: ${landedBody.config.name}` : autopilot ? "Автопилот: переход к цели…" :
       nearby ? `Посадка доступна: ${nearby.config.name}` : "Системы в норме · выбери цель";
+    const cruise = autopilot?.contract;
+    document.getElementById("cruise-progress").hidden = !cruise;
+    if (cruise) {
+      const remaining = Math.ceil(autopilot.duration - autopilot.elapsed);
+      document.getElementById("cruise-time").textContent = `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, "0")}`;
+      document.getElementById("cruise-bar").value = state.career.flightSeconds;
+      document.getElementById("cruise-radio").textContent = state.career.flightSeconds < 100 ? "Земля осталась за кормой. Аппаратура закреплена, курс на «Арес»." :
+        state.career.flightSeconds < 220 ? "Станция «Арес»: сигнал устойчивый. Ждём оборудование для исследования марсианских пород." :
+          "Марс впереди. После прибытия выполните посадку и передайте груз через журнал.";
+    }
+    contracts.render();
     positionCamera(getShipForward(ship));
     updateHud(distance);
     if (performance.now() - lastSave > 2500) save();
@@ -141,6 +173,7 @@ export function createExpedition(world) {
   }
 
   function syncActions() {
+    document.body.classList.toggle("autopilot-mode", Boolean(autopilot));
     document.body.classList.toggle("landed-mode", Boolean(landedBody));
     landButton.disabled = !active || Boolean(autopilot) || (!landedBody && !findLandingBody());
     landButton.textContent = landedBody ? "↑ Взлёт" : "↓ Посадка";
@@ -148,20 +181,32 @@ export function createExpedition(world) {
     autopilotButton.setAttribute("aria-pressed", String(Boolean(autopilot)));
     autopilotButton.textContent = autopilot ? "■ Стоп" : "◎ К цели";
     document.getElementById("refuelBtn").disabled = !landedBody || landedBody.config.id !== "earth";
+    contracts.render();
   }
 
-  function stopAutopilot() { autopilot = null; syncActions(); }
+  function stopAutopilot() {
+    autopilot = null;
+    document.getElementById("cruise-progress").hidden = true;
+    dispatchEvent(new Event("kosmodrom-input-reset"));
+    syncActions();
+  }
 
   function toggleAutopilot() {
-    if (autopilot) { stopAutopilot(); return; }
+    if (autopilot) { stopAutopilot(); save(); return; }
     if (!active || landedBody || !["planet", "moon"].includes(target.type)) return;
     const center = target.object.getWorldPosition(new THREE.Vector3());
     const from = ship.position.clone().sub(center);
     const normal = from.lengthSq() > 0.001 ? from.clone().normalize() : new THREE.Vector3(0, 1, 0);
-    autopilot = { from, to: normal.multiplyScalar(target.config.radius + 4), elapsed: 0, duration: 8 };
+    const contract = !store.issue && state.career.contractStatus === "active" && target.config.id === "mars";
+    const duration = contract ? Math.max(8, CONTRACT.cruiseSeconds - state.career.flightSeconds) : 8;
+    autopilot = { from, to: normal.multiplyScalar(target.config.radius + 4), elapsed: 0, duration, contract, startSeconds: state.career.flightSeconds };
+    flightClock.reset(performance.now());
+    touch.reset();
+    dispatchEvent(new Event("kosmodrom-input-reset"));
     velocity.set(0, 0, 0);
     world.navigation?.stopTour();
     syncActions();
+    save();
     announce(`Автопилот прокладывает маршрут: ${target.config.name}.`);
   }
 
@@ -290,7 +335,9 @@ export function createExpedition(world) {
   function updateRoute() {
     const distance = target.object.getWorldPosition(new THREE.Vector3()).distanceTo(ship.position);
     document.getElementById("route-target").textContent = target.config.name;
-    document.getElementById("route-eta").textContent = `≈ ${Math.max(1, Math.ceil(distance / 6))} мин`;
+    document.getElementById("route-eta").textContent = state.career.contractStatus === "active" && target.config.id === "mars" ?
+      `Круиз: ≈ ${Math.max(1, Math.ceil((CONTRACT.cruiseSeconds - state.career.flightSeconds) / 60))} мин` :
+      `≈ ${Math.max(1, Math.ceil(distance / 6))} мин`;
   }
 
   function completeLanding(id) {
@@ -306,10 +353,15 @@ export function createExpedition(world) {
     save();
   }
 
+  function snapshot() {
+    Object.assign(state, { landedOn: landedBody?.config.id ?? null, landedOffset: landedOffset.toArray(), position: ship.position.toArray(), quaternion: ship.quaternion.toArray(), velocity: velocity.toArray(), fuel, simple, target: target.config.id, crashed });
+    return state;
+  }
+
   function save() {
     lastSave = performance.now();
-    Object.assign(state, { landedOn: landedBody?.config.id ?? null, landedOffset: landedOffset.toArray(), position: ship.position.toArray(), velocity: velocity.toArray(), fuel, simple, target: target.config.id, crashed });
-    localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+    snapshot();
+    return store.save();
   }
 
   document.getElementById("flightBtn").addEventListener("click", () => {
@@ -351,6 +403,12 @@ export function createExpedition(world) {
   document.getElementById("sample-count").textContent = String((state.samples ?? []).length);
   updateMission();
   addEventListener("pagehide", save);
+  document.addEventListener("visibilitychange", () => { flightClock.reset(performance.now()); if (document.hidden) save(); });
+  document.getElementById("pauseBtn").addEventListener("click", () => {
+    flightClock.reset(performance.now());
+    touch.reset();
+    dispatchEvent(new Event("kosmodrom-input-reset"));
+  });
   ship.visible = !crashed;
   setActive(false);
   updateRoute();
@@ -393,10 +451,6 @@ function applyGravity(bodies, position, velocity, delta) {
     const distanceSq = Math.max(offset.lengthSq(), 4);
     velocity.addScaledVector(offset.normalize(), (body.config.radius ** 2 * delta) / distanceSq);
   }
-}
-
-function loadState() {
-  try { return JSON.parse(localStorage.getItem(SAVE_KEY)) ?? {}; } catch { return {}; }
 }
 
 function announce(text) { document.getElementById("announcement").textContent = text; }

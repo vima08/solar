@@ -39,25 +39,27 @@ export function createShipControls(ship, velocity, options) {
   addEventListener("blur", () => keys.clear());
   addEventListener("kosmodrom-flight-mode", () => keys.clear());
   addEventListener("kosmodrom-landing", () => keys.clear());
+  addEventListener("kosmodrom-input-reset", () => keys.clear());
+  document.addEventListener("visibilitychange", () => keys.clear());
 
   function update(delta) {
-    if (!options.isActive()) return { forward: getShipForward(ship), hasThrust: false };
-    if (keys.has("KeyA")) ship.rotateY(TURN_SPEED * delta);
-    if (keys.has("KeyD")) ship.rotateY(-TURN_SPEED * delta);
-    if (keys.has("ArrowUp")) ship.rotateX(TURN_SPEED * delta);
-    if (keys.has("ArrowDown")) ship.rotateX(-TURN_SPEED * delta);
-    if (keys.has("ArrowLeft")) ship.rotateZ(-ROLL_SPEED * delta);
-    if (keys.has("ArrowRight")) ship.rotateZ(ROLL_SPEED * delta);
+    if (!options.isActive() || document.hidden || document.querySelector("dialog[open]")) {
+      keys.clear();
+      return { forward: getShipForward(ship), hasThrust: false };
+    }
+    const analog = options.analog ?? {};
+    const clamp = (n) => Math.max(-1, Math.min(1, n));
+    ship.rotateY(clamp(Number(keys.has("KeyA")) - Number(keys.has("KeyD")) - (analog.yaw ?? 0)) * TURN_SPEED * delta);
+    ship.rotateX(clamp(Number(keys.has("ArrowUp")) - Number(keys.has("ArrowDown")) + (analog.pitch ?? 0)) * TURN_SPEED * delta);
+    ship.rotateZ(clamp(Number(keys.has("ArrowRight")) - Number(keys.has("ArrowLeft")) + (analog.roll ?? 0)) * ROLL_SPEED * delta);
 
     const forward = getShipForward(ship);
-    const thrust = new THREE.Vector3();
-    if (keys.has("KeyW")) thrust.add(forward);
-    if (keys.has("KeyS")) thrust.sub(forward);
+    const strength = clamp(Number(keys.has("KeyW")) - Number(keys.has("KeyS")) + (analog.thrust ?? 0));
 
-    const hasThrust = thrust.lengthSq() > 0 && options.hasFuel();
+    const hasThrust = strength !== 0 && options.hasFuel();
     if (hasThrust) {
-      velocity.addScaledVector(thrust.normalize(), delta * (options.isSimple() ? 10 : 5));
-      options.consumeFuel(delta * 0.7);
+      velocity.addScaledVector(forward, strength * delta * (options.isSimple() ? 10 : 5));
+      options.consumeFuel(Math.abs(strength) * delta * 0.7);
     }
 
     return { forward, hasThrust };

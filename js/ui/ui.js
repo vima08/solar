@@ -14,8 +14,8 @@ export function initUI(world) {
   const selected = document.getElementById("selected");
   const timeScale = document.getElementById("timeScale");
   const pauseButton = document.getElementById("pauseBtn");
-  const visited = new Set();
-  const visitedMoons = new Set();
+  const visited = new Set(world.saveStore.state.exploration.planets);
+  const visitedMoons = new Set(world.saveStore.state.exploration.moons);
   function showInfo(config) {
     name.textContent = config.name;
     selected.textContent = config.name;
@@ -25,10 +25,12 @@ export function initUI(world) {
     if (body?.type === "planet") {
       visited.add(config.id);
       updateProgress();
+      world.expedition?.save();
     }
     if (body?.type === "moon") {
       visitedMoons.add(config.id);
       updateProgress();
+      world.expedition?.save();
     }
     document.getElementById("announcement").textContent =
       `Выбрано: ${config.name}. ${config.description}`;
@@ -114,6 +116,7 @@ export function initUI(world) {
   const moonButtons = destinationButtons.filter((button) => button.dataset.moon);
 
   function updateProgress() {
+    world.saveStore.state.exploration = { planets: [...visited], moons: [...visitedMoons] };
     const percent = Math.round((visited.size / planetButtons.length) * 100);
     const moonPercent = Math.round((visitedMoons.size / moonButtons.length) * 100);
     document.getElementById("mission-progress").style.width = `${percent}%`;
@@ -134,6 +137,7 @@ export function initUI(world) {
   pauseButton.addEventListener("click", () => {
     togglePause();
     const paused = getTime().paused;
+    document.body.classList.toggle("simulation-paused", paused);
     pauseButton.textContent = paused ? "▶ Продолжить" : "⏸ Пауза";
     pauseButton.setAttribute("aria-pressed", String(paused));
   });

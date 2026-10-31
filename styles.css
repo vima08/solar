@@ -471,3 +471,61 @@ button:focus-visible, summary:focus-visible, input:focus-visible { outline:2px s
   #hint { display:none; }
   #cockpit-frame { border-width:12px; border-top-width:60px; }
 }
+
+/* Adventure journal, portable saves, and thumb controls. */
+[hidden] { display: none !important; }
+#contract-panel h2 { margin: 10px 0; font-size: 20px; }
+.contract-kicker { font-size: 10px; letter-spacing: 1px; color: var(--blue); }
+.career-gauges { display: flex; justify-content: space-between; gap: 12px; margin: 18px 0; }
+.career-gauges span { color: #99b6cc; font-size: 10px; }
+.career-gauges b { display: block; margin-top: 5px; font-size: 18px; color: #fff; }
+.career-gauges b span { color: #fff; font-size: inherit; }
+#contract-journal, #save-status, #import-summary { font-size: 13px; line-height: 1.65; color: #d5eaf6; }
+#contractAction { background: #205945; border-color: #63dba8; }
+#contractAction:not(:disabled) { order: -1; }
+#voyage-status { position: fixed; z-index: 6; top: 80px; left: 22px; padding: 9px 14px; border-radius: 12px; color: #b5e9ff; font-size: 11px; }
+#saveWarning { position: fixed; z-index: 20; top: 126px; left: 12px; max-width: min(350px, calc(100% - 24px)); padding: 12px; border: 1px solid #c69153; border-radius: 12px; background: #382716f2; color: #ffe3b5; font-size: 12px; line-height: 1.5; text-align: left; cursor: pointer; }
+#cruise-progress { position: fixed; z-index: 6; top: 128px; left: 22px; width: min(350px, calc(100% - 44px)); padding: 14px; border-radius: 16px; }
+.cruise-heading { display: flex; justify-content: space-between; font-size: 11px; color: #9cbad1; }
+.cruise-heading b { color: var(--blue); font-variant-numeric: tabular-nums; }
+#cruise-bar { width: 100%; height: 5px; margin-top: 12px; accent-color: var(--blue); }
+#cruise-radio { margin-bottom: 0; font-size: 12px; line-height: 1.6; color: #c7deed; }
+.simulation-paused #cruise-time::after { content: " · пауза"; }
+button, .file-button, summary, .touch-option, .mode { min-width: 44px; min-height: 44px; }
+.destination-row { grid-template-columns: 1fr 44px; }
+.destination-group .moon-toggle { min-width: 44px; }
+.touch-option { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.file-button, #restoreSaveBtn, #import-dialog button { display: inline-flex; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; color: #d7efff; background: #192d48; cursor: pointer; }
+#importSaveFile:focus-visible { outline: 2px solid var(--blue); }
+#import-dialog { width: min(490px, calc(100% - 24px)); max-height: 85dvh; overflow: auto; border-radius: 20px; color: #fff; }
+#import-dialog::backdrop { background: #020814dd; }
+#import-dialog h2 { font-size: 21px; }
+#import-dialog form { margin-top: 12px; }
+#import-error { color: #ffb2a3; font-size: 13px; }
+#touch-controls { position: fixed; inset: auto max(22px, env(safe-area-inset-right)) calc(100px + env(safe-area-inset-bottom)) max(22px, env(safe-area-inset-left)); display: flex; justify-content: space-between; pointer-events: none; z-index: 12; }
+.stick-group { text-align: center; }
+.stick-group > span { display: block; margin-bottom: 12px; color: #a7d6ed; font-size: 10px; letter-spacing: 1px; text-shadow: 0 1px 3px #000; }
+.analog-stick { width: 148px; height: 148px; border-radius: 50%; border: 1px solid #6ccef080; background: radial-gradient(circle, #193c5e80, #09172d80); display: grid; place-items: center; touch-action: none; user-select: none; pointer-events: auto; box-shadow: inset 0 0 25px #143d68; }
+.stick-thumb { width: 54px; height: 54px; border: 2px solid #8edfff; border-radius: 50%; background: #326786c7; pointer-events: none; box-shadow: 0 0 16px #49c4ff50; }
+.dashboard-open #cruise-progress { opacity: .15; pointer-events: none; }
+#controls { bottom: max(12px, env(safe-area-inset-bottom)); }
+@media (max-width: 800px) {
+  #voyage-status { top: 62px; left: 12px; max-width: calc(100% - 24px); }
+  #cruise-progress { top: 110px; left: 12px; width: min(350px, calc(100% - 24px)); }
+  #controls { display: grid; grid-template-columns: repeat(5, 1fr); overflow: visible; }
+  #controls button { padding: 10px 3px; font-size: 11px; white-space: normal; }
+  .analog-stick { width: 120px; height: 120px; }
+  .stick-thumb { width: 46px; height: 46px; }
+  #dashboard { bottom: calc(88px + env(safe-area-inset-bottom)); }
+}
+@media (max-height: 500px) {
+  header { top: 12px; left: 12px; }
+  .brand small { display: none; }
+  .brand b { font-size: 18px; }
+  .logo-mark { width: 38px; height: 38px; font-size: 22px; }
+  #voyage-status { top: 60px; }
+  #cruise-progress { top: 98px; left: calc(50% - 150px); width: 300px; padding: 10px; }
+  #cruise-radio { display: none; }
+  #touch-controls { bottom: 85px; }
+  .analog-stick { width: 105px; height: 105px; }
+}
