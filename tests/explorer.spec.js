@@ -135,11 +135,11 @@ test("keeps secondary controls out of the flight toolbar", async ({ page }) => {
   }
 });
 
-test("persists muted ambient music and supports keyboard navigation in the dashboard", async ({ page }) => {
+test("persists muted music and supports dashboard hotkeys", async ({ page }) => {
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.locator("#tab-route").focus();
-  await page.keyboard.press("End");
+  await page.keyboard.press("Alt+4");
   await expect(page.locator("#tab-settings")).toBeFocused();
   await expect(page.locator("#panel-settings")).toBeVisible();
   await page.locator("#musicVolume").fill("0");

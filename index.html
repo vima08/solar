@@ -33,12 +33,12 @@
       ><span>ЦЕЛЬ<b id="selected">Солнце</b></span>
     </aside>
     <aside id="dashboard" class="glass" aria-label="Бортовой пульт">
-      <div class="dashboard-heading"><span>БОРТОВОЙ ПУЛЬТ</span><button id="closeDashboard" aria-label="Закрыть пульт">×</button></div>
+      <div class="dashboard-heading"><span>БОРТОВОЙ ПУЛЬТ · Alt+1…4</span><button id="closeDashboard" aria-label="Закрыть пульт" title="Закрыть пульт (Esc)">×</button></div>
       <div class="dashboard-tabs" role="tablist" aria-label="Разделы пульта">
-        <button id="tab-route" role="tab" aria-selected="true" aria-controls="panel-route" data-tab="route">Маршрут</button>
-        <button id="tab-ship" role="tab" aria-selected="false" aria-controls="panel-ship" data-tab="ship" tabindex="-1">Корабль</button>
-        <button id="tab-missions" role="tab" aria-selected="false" aria-controls="panel-missions" data-tab="missions" tabindex="-1">Миссии</button>
-        <button id="tab-settings" role="tab" aria-selected="false" aria-controls="panel-settings" data-tab="settings" tabindex="-1">Настройки</button>
+        <button id="tab-route" role="tab" aria-selected="true" aria-controls="panel-route" aria-keyshortcuts="Alt+1" data-tab="route">Маршрут</button>
+        <button id="tab-ship" role="tab" aria-selected="false" aria-controls="panel-ship" aria-keyshortcuts="Alt+2" data-tab="ship" tabindex="-1">Корабль</button>
+        <button id="tab-missions" role="tab" aria-selected="false" aria-controls="panel-missions" aria-keyshortcuts="Alt+3" data-tab="missions" tabindex="-1">Миссии</button>
+        <button id="tab-settings" role="tab" aria-selected="false" aria-controls="panel-settings" aria-keyshortcuts="Alt+4" data-tab="settings" tabindex="-1">Настройки</button>
       </div>
       <div class="dashboard-content">
         <section id="panel-route" role="tabpanel" aria-labelledby="tab-route"><details id="planet-nav" class="glass" open>
@@ -89,7 +89,7 @@
         <section id="panel-settings" role="tabpanel" aria-labelledby="tab-settings" hidden><details id="sound-panel" open class="glass"><summary>♫ Звук</summary>
       <label>Музыка <input id="musicVolume" data-channel="музыки" type="range" min="0" max="100" /></label>
       <label>Двигатель <input id="engineVolume" data-channel="двигателя" type="range" min="0" max="100" /></label>
-    </details><div class="settings-section"><h3>Время и исследование</h3><div class="button-row">
+    </details><p class="help-text">Музыка: сайфай-синтвейв · 96 BPM</p><div class="settings-section"><h3>Время и исследование</h3><div class="button-row">
       <button id="pauseBtn" aria-pressed="false">⏸ Пауза</button
       ><button id="slowBtn">🐢 0.04×</button><button id="normalBtn">▶ 0.2×</button
       ><button id="fastBtn">⚡ 2×</button
@@ -100,7 +100,7 @@
       </div>
     </aside>
     <nav id="controls" class="glass" aria-label="Управление полётом">
-      <button id="dashboardBtn" aria-controls="dashboard" aria-expanded="true">☰ Пульт</button>
+      <button id="dashboardBtn" aria-controls="dashboard" aria-expanded="true" aria-keyshortcuts="Alt+P" title="Бортовой пульт (Alt+P)">☰ Пульт</button>
       <button id="flightBtn" aria-pressed="false">🚀 На корабль</button>
       <button id="autopilotBtn" aria-pressed="false" disabled>◎ К цели</button>
       <button id="landBtn" disabled>↓ Посадка</button>

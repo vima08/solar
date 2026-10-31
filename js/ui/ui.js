@@ -2,7 +2,7 @@ import { getTime, togglePause, setTimeScale } from "../core/time.js";
 import { createNavigation } from "./navigation.js";
 import { createLabels } from "./labels.js";
 import { ENGINE_AUDIO } from "../assets/audio-resources.js";
-import { createAmbient } from "../assets/ambient.js";
+import { createScifiMusic } from "../assets/scifi-music.js";
 import { setupDashboard } from "./dashboard.js";
 
 import { setupQuiz } from "./quiz.js";
@@ -187,7 +187,7 @@ function setupAudio() {
       musicGain.connect(context.destination);
       engineGain.connect(context.destination);
 
-      createAmbient(context, musicGain);
+      createScifiMusic(context, musicGain);
       createLoop(ENGINE_AUDIO, engineGain);
       updateAudioLevels();
     }

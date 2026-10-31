@@ -19,14 +19,26 @@ export function createShipControls(ship, velocity, options) {
 
   addEventListener("keydown", (event) => {
     if (!CONTROL_KEYS.includes(event.code)) return;
-    if (event.target.closest?.("input, textarea, select")) return;
-    if (event.code.startsWith("Arrow") && event.target.closest?.("button, summary, [role='tab']")) return;
+    const arrow = event.code.startsWith("Arrow");
+    if (arrow) {
+      // Reserve arrows before tabs, sliders and browser scrolling receive them.
+      event.preventDefault();
+      event.stopPropagation();
+    } else if (event.target.closest?.("input, textarea, select")) return;
+    if (!options.isActive()) return;
     keys.add(event.code);
-    if (options.isActive()) event.preventDefault();
-  });
-  addEventListener("keyup", (event) => keys.delete(event.code));
+    event.preventDefault();
+  }, { capture: true });
+  addEventListener("keyup", (event) => {
+    keys.delete(event.code);
+    if (event.code.startsWith("Arrow")) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  }, { capture: true });
   addEventListener("blur", () => keys.clear());
   addEventListener("kosmodrom-flight-mode", () => keys.clear());
+  addEventListener("kosmodrom-landing", () => keys.clear());
 
   function update(delta) {
     if (!options.isActive()) return { forward: getShipForward(ship), hasThrust: false };

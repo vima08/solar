@@ -14,16 +14,8 @@ export function setupDashboard() {
       document.getElementById(tab.getAttribute("aria-controls")).hidden = !selected;
     });
   }
-  tabs.forEach((tab, index) => {
+  tabs.forEach((tab) => {
     tab.addEventListener("click", () => selectTab(tab.dataset.tab));
-    tab.addEventListener("keydown", (event) => {
-      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
-      event.preventDefault();
-      const next = event.key === "Home" ? 0 : event.key === "End" ? tabs.length - 1 :
-        (index + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
-      selectTab(tabs[next].dataset.tab);
-      tabs[next].focus();
-    });
   });
   toggle.addEventListener("click", () => setOpen(dashboard.hidden));
   document.getElementById("closeDashboard").addEventListener("click", () => {
@@ -31,6 +23,19 @@ export function setupDashboard() {
     toggle.focus();
   });
   addEventListener("keydown", (event) => {
+    if (event.altKey && !event.ctrlKey && !event.metaKey && !event.repeat) {
+      const index = ["Digit1", "Digit2", "Digit3", "Digit4"].indexOf(event.code);
+      if (index !== -1) {
+        event.preventDefault();
+        selectTab(tabs[index].dataset.tab);
+        setOpen(true);
+        tabs[index].focus();
+      } else if (event.code === "KeyP") {
+        event.preventDefault();
+        setOpen(dashboard.hidden);
+        if (dashboard.hidden) toggle.focus();
+      }
+    }
     if (event.key === "Escape" && !document.querySelector("dialog[open]")) {
       setOpen(false);
       toggle.focus();
