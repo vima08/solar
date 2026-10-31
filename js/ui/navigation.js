@@ -109,6 +109,7 @@ export function createNavigation(camera, controls, bodies, onSelect) {
   }
 
   return {
+    cancelFlight() { flight = null; },
     flyTo,
     goHome,
     startTour,

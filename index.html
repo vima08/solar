@@ -118,6 +118,7 @@
             <div class="button-row"><button id="exportSaveBtn">Скачать JSON</button><label class="file-button" for="importSaveFile">Загрузить JSON</label><input id="importSaveFile" class="sr-only" type="file" accept=".json,application/json" /></div>
             <button id="restoreSaveBtn" hidden>Применить восстановление</button>
             <p class="help-text">Файл переносит корабль, контракт, деньги, миссии и исследования. Перед заменой появится подтверждение. Настройки звука не переносятся.</p>
+            <button id="resetProgressBtn" class="danger-button">Начать заново…</button>
           </section>
         </section>
       </div>
@@ -164,6 +165,14 @@
       <p id="import-error" role="alert"></p>
       <div class="button-row"><button id="backupSaveBtn" type="button">Скачать текущий рейс</button><button id="confirmImportBtn" type="button">Заменить и загрузить</button></div>
       <form method="dialog"><button value="cancel">Отмена</button></form>
+    </dialog>
+    <dialog id="reset-dialog" class="glass" aria-labelledby="reset-heading">
+      <h2 id="reset-heading">Начать заново?</h2>
+      <p>Будут сброшены положение корабля, деньги, груз, контракт, миссии, образцы и исследования. Настройки звука останутся.</p>
+      <p class="help-text">Скачайте копию текущего рейса: её можно будет загрузить обратно из JSON.</p>
+      <p id="reset-error" role="alert"></p>
+      <div class="button-row"><button id="resetBackupBtn" type="button">Скачать текущий рейс</button><button id="confirmResetBtn" type="button" class="danger-button">Сбросить прогресс</button></div>
+      <form method="dialog"><button value="cancel" autofocus>Отмена</button></form>
     </dialog>
     <script type="importmap">
       {

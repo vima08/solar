@@ -1,4 +1,4 @@
-import { normalizeCareer } from "./contracts.js";
+import { newCareer, normalizeCareer } from "./contracts.js";
 import { SAVE_KEY, validateExpedition, validateExploration } from "./save-files.js";
 
 export function createSaveStore(bodies, storage = localStorage) {
@@ -55,13 +55,17 @@ export function createSaveStore(bodies, storage = localStorage) {
       issue = null;
       return this.save();
     },
-    importState(next) {
+    reset() {
+      return this.importState({ career: newCareer(), exploration: { planets: [], moons: [] }, samples: [], deliveryMission: 0, fuel: 100 },
+        "Прогресс не сброшен: браузер отказал в записи. Текущий рейс не изменён.");
+    },
+    importState(next, failureMessage = "Загрузка не выполнена: браузер отказал в записи. Текущее сохранение не изменено.") {
       // A single setItem is atomic. Retire the old session before pagehide can write it back.
       try {
         storage.setItem(SAVE_KEY, JSON.stringify(next));
         retired = true;
         return true;
-      } catch { report("Загрузка не выполнена: браузер отказал в записи. Текущее сохранение не изменено."); return false; }
+      } catch { report(failureMessage); return false; }
     },
   };
 }

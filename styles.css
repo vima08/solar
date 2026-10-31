@@ -512,6 +512,13 @@ button, .file-button, summary, .touch-option, .mode { min-width: 44px; min-heigh
 #import-dialog::backdrop { background: #020814dd; }
 #import-dialog h2 { font-size: 21px; }
 #import-dialog form { margin-top: 12px; }
+#reset-dialog { width: min(490px, calc(100% - 24px)); max-height: 85dvh; overflow: auto; padding: 20px; border-radius: 20px; color: #fff; font-size: 14px; line-height: 1.6; }
+#reset-dialog::backdrop { background: #020814dd; }
+#reset-dialog h2 { font-size: 21px; }
+#reset-dialog button { padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; color: #d7efff; background: #192d48; cursor: pointer; }
+#reset-dialog form { margin-top: 12px; }
+#reset-error { color: #ffb2a3; }
+#resetProgressBtn, #reset-dialog .danger-button { border: 1px solid #ad6262; color: #ffd6d0; background: #47262f; padding: 10px 12px; border-radius: 10px; cursor: pointer; }
 #import-error { color: #ffb2a3; font-size: 13px; }
 #touch-controls { position: fixed; inset: auto max(22px, env(safe-area-inset-right)) calc(100px + env(safe-area-inset-bottom)) max(22px, env(safe-area-inset-left)); display: flex; justify-content: space-between; pointer-events: none; z-index: 12; }
 .stick-group { text-align: center; }

@@ -7,11 +7,11 @@ import { setupSaveControls } from "./save-controls.js";
 import { createTouchControls } from "./touch-controls.js";
 import { getTime } from "../core/time.js";
 import { autopilotUnavailable, setupFlightAssistance } from "./flight-assistance.js";
+import { createShipCamera, landingHeading, surfaceFrame } from "./ship-camera.js";
 
 const START = new THREE.Vector3(24, 2, 0);
 const SHIP_SCALE = 0.36;
 const GIANTS = new Set(["jupiter", "saturn", "uranus", "neptune"]);
-const CAMERA_FORWARD_FIX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
 
 export function createExpedition(world) {
   const ship = createShip();
@@ -38,6 +38,8 @@ export function createExpedition(world) {
   let lastSave = 0;
   let landedBody = world.bodies.find((body) => body.config.id === state.landedOn) ?? null;
   const landedOffset = new THREE.Vector3().fromArray(state.landedOffset ?? [0, 1, 0]);
+  const landedHeading = new THREE.Vector3().fromArray(state.landedHeading ?? [0, 0, 1]);
+  const shipCamera = createShipCamera(world.camera);
   let autopilot = null;
   const flightClock = createFlightClock();
   const touch = createTouchControls();
@@ -82,7 +84,13 @@ export function createExpedition(world) {
   function setActive(value) {
     active = value;
     if (!value) stopAutopilot();
-    if (value) world.navigation?.stopTour();
+    if (value) {
+      world.navigation?.stopTour();
+      world.navigation?.cancelFlight();
+      shipCamera.reset();
+    } else {
+      world.camera.up.set(0, 1, 0);
+    }
     ship.visible = !crashed;
     world.controls.enabled = !value;
     document.body.classList.toggle("flight-mode", value);
@@ -119,7 +127,7 @@ export function createExpedition(world) {
     if (landedBody) {
       ship.position.copy(landedBody.object.localToWorld(landedOffset.clone()));
       const normal = ship.position.clone().sub(landedBody.object.getWorldPosition(new THREE.Vector3())).normalize();
-      ship.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal);
+      ship.quaternion.copy(landedBody.object.getWorldQuaternion(new THREE.Quaternion())).multiply(surfaceFrame(landedOffset, landedHeading).quaternion);
       landingPad.position.copy(ship.position).addScaledVector(normal, -0.15);
       landingPad.quaternion.copy(ship.quaternion);
       velocity.set(0, 0, 0);
@@ -173,7 +181,7 @@ export function createExpedition(world) {
           "Марс впереди. После прибытия выполните посадку и передайте груз через журнал.";
     }
     contracts.render();
-    positionCamera(getShipForward(ship));
+    shipCamera.update({ ship, cockpit, body: landedBody?.object ?? null, offset: landedOffset, heading: landedHeading, delta });
     updateHud(distance);
     if (performance.now() - lastSave > 2500) save();
   }
@@ -238,6 +246,7 @@ export function createExpedition(world) {
       ship.position.copy(center).addScaledVector(normal, landedBody.config.radius + 3);
       ship.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
       landedBody = null;
+      shipCamera.reset();
       velocity.set(0, 0, 0);
       announce("Взлёт завершён. Корабль на орбите.");
     } else {
@@ -246,6 +255,7 @@ export function createExpedition(world) {
       landedBody = body;
       setTarget(body);
       landedOffset.copy(body.object.worldToLocal(ship.position.clone())).normalize().multiplyScalar(body.config.radius + (GIANTS.has(body.config.id) ? 1 : 0.3));
+      landedHeading.copy(landingHeading(body.object, landedOffset, getShipForward(ship)));
       ship.position.copy(body.object.localToWorld(landedOffset.clone()));
       velocity.set(0, 0, 0);
       completeLanding(body.config.id);
@@ -333,18 +343,6 @@ export function createExpedition(world) {
     setActive(true);
   }
 
-  function positionCamera(forward) {
-    if (cockpit) {
-      const cockpitOffset = new THREE.Vector3(0, 0.35, -0.35).applyQuaternion(ship.quaternion);
-      world.camera.position.copy(ship.position).add(cockpitOffset);
-      world.camera.quaternion.copy(ship.quaternion).multiply(CAMERA_FORWARD_FIX);
-    } else {
-      world.camera.up.set(0, 1, 0);
-      world.camera.position.lerp(ship.position.clone().addScaledVector(forward, -7).add(new THREE.Vector3(0, 3, 0)), 0.12);
-      world.camera.lookAt(ship.position.clone().addScaledVector(forward, 8));
-    }
-  }
-
   function updateHud(distance) {
     document.getElementById("ship-speed").textContent = `${velocity.length().toFixed(1)} км/с`;
     document.getElementById("ship-distance").textContent = `${distance.toFixed(1)} млн км`;
@@ -374,7 +372,7 @@ export function createExpedition(world) {
   }
 
   function snapshot() {
-    Object.assign(state, { landedOn: landedBody?.config.id ?? null, landedOffset: landedOffset.toArray(), position: ship.position.toArray(), quaternion: ship.quaternion.toArray(), velocity: velocity.toArray(), fuel, simple, target: target.config.id, crashed });
+    Object.assign(state, { landedOn: landedBody?.config.id ?? null, landedOffset: landedOffset.toArray(), landedHeading: landedHeading.toArray(), position: ship.position.toArray(), quaternion: ship.quaternion.toArray(), velocity: velocity.toArray(), fuel, simple, target: target.config.id, crashed });
     return state;
   }
 

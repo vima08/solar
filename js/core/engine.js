@@ -20,8 +20,10 @@ export function createEngine({
     requestAnimationFrame(animate);
     const delta = clock.getDelta();
     updateTime(delta);
-    controls.update();
-    navigation?.update();
+    if (controls.enabled) {
+      controls.update();
+      navigation?.update();
+    }
     updateAll(getTime(), delta);
     labels?.update();
     expedition?.update(delta);

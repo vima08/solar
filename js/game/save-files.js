@@ -15,9 +15,9 @@ export function validateExpedition(value, bodies) {
         Math.abs(Math.hypot(...value.quaternion) - 1) > 0.01) throw new Error("Некорректная ориентация корабля.");
     result.quaternion = [...value.quaternion];
   }
-  for (const key of ["position", "velocity", "landedOffset"]) {
+  for (const key of ["position", "velocity", "landedOffset", "landedHeading"]) {
     if (value[key] === undefined) continue;
-    if (!vector(value[key]) || (key === "landedOffset" && Math.hypot(...value[key]) < 0.001)) throw new Error(`Некорректный вектор: ${key}.`);
+    if (!vector(value[key]) || (["landedOffset", "landedHeading"].includes(key) && Math.hypot(...value[key]) < 0.001)) throw new Error(`Некорректный вектор: ${key}.`);
     result[key] = [...value[key]];
   }
   for (const key of ["simple", "crashed"]) {

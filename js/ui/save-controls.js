@@ -14,6 +14,7 @@ export function setupSaveControls(store, snapshot, bodies) {
   const recovery = document.getElementById("restoreSaveBtn");
   const warning = document.getElementById("saveWarning");
   const dialog = document.getElementById("import-dialog");
+  const resetDialog = document.getElementById("reset-dialog");
   const fileInput = document.getElementById("importSaveFile");
   let pending = null;
   document.getElementById("savesBtn").addEventListener("click", () => {
@@ -23,7 +24,7 @@ export function setupSaveControls(store, snapshot, bodies) {
   });
   store.subscribe(() => {
     status.textContent = store.message;
-    warning.hidden = !store.issue && !/не сохранён|недоступно|не выполнена/.test(store.message);
+    warning.hidden = !store.issue && !/не сохранён|недоступно|не выполнена|не сброшен/.test(store.message);
     warning.textContent = store.message;
     recovery.hidden = store.issue !== "damaged";
     document.getElementById("exportSaveBtn").textContent = store.issue ? "Скачать исходную копию" : "Скачать JSON";
@@ -35,6 +36,16 @@ export function setupSaveControls(store, snapshot, bodies) {
   };
   document.getElementById("exportSaveBtn").addEventListener("click", exportCurrent);
   document.getElementById("backupSaveBtn").addEventListener("click", exportCurrent);
+  document.getElementById("resetBackupBtn").addEventListener("click", exportCurrent);
+  document.getElementById("resetProgressBtn").addEventListener("click", () => {
+    document.getElementById("reset-error").textContent = "";
+    dispatchEvent(new Event("kosmodrom-input-reset"));
+    resetDialog.showModal();
+  });
+  document.getElementById("confirmResetBtn").addEventListener("click", () => {
+    if (store.reset()) location.reload();
+    else document.getElementById("reset-error").textContent = store.message;
+  });
   recovery.addEventListener("click", () => { store.restore(); dispatchEvent(new Event("kosmodrom-career-change")); });
   fileInput.addEventListener("change", async () => {
     pending = null;
