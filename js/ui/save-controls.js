@@ -16,6 +16,11 @@ export function setupSaveControls(store, snapshot, bodies) {
   const dialog = document.getElementById("import-dialog");
   const fileInput = document.getElementById("importSaveFile");
   let pending = null;
+  document.getElementById("savesBtn").addEventListener("click", () => {
+    dispatchEvent(new CustomEvent("kosmodrom-open-tab", { detail: "settings" }));
+    document.getElementById("save-panel").scrollIntoView({ block: "start" });
+    document.getElementById("save-heading").focus({ preventScroll: true });
+  });
   store.subscribe(() => {
     status.textContent = store.message;
     warning.hidden = !store.issue && !/не сохранён|недоступно|не выполнена/.test(store.message);

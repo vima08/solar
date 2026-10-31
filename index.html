@@ -65,7 +65,7 @@
     <div class="button-row"><button id="cockpitBtn" aria-pressed="false">◉ Кабина</button
       ><label class="mode"><input id="physicsMode" type="checkbox" /> Простой режим</label
       ><button id="refuelBtn">⛽ Заправить</button>
-    </div><p class="help-text">W/S — тяга · A/D — поворот<br>↑/↓ — тангаж · ←/→ — крен</p><p class="help-text">Подлети к планете или луне — кнопка посадки загорится зелёным. После посадки можно взлететь. Заправка доступна на Земле.</p></aside></section>
+    </div><p class="help-text">W/S — тяга · A/D — поворот<br>↑/↓ — тангаж · ←/→ — крен</p><p class="help-text">Выберите планету или луну и нажмите «Автопилот» внизу: он доставит к цели без расхода топлива. Затем нажмите «Посадка». Полная заправка доступна на Земле; с пустым баком можно запросить аварийный запас.</p></aside></section>
         <section id="panel-missions" role="tabpanel" aria-labelledby="tab-missions" hidden>
           <article id="contract-panel" class="glass" aria-labelledby="contract-title">
             <div class="contract-kicker">КОНТРАКТ · <span id="contract-status">ДОСТУПЕН</span></div>
@@ -112,7 +112,8 @@
             <label class="touch-option"><input id="touchEnabled" type="checkbox" /> Экранные аналоговые стики</label>
             <p class="help-text">Закройте пульт во время ручного полёта. Левый стик: тяга и поворот. Правый: тангаж и крен. Клавиатура также работает.</p>
           </section>
-          <section id="save-panel" class="glass" aria-labelledby="save-heading"><h3 id="save-heading">Сохранение и загрузка</h3>
+          <section id="save-panel" class="glass" aria-labelledby="save-heading"><h3 id="save-heading" tabindex="-1">Сохранение и загрузка</h3>
+            <p class="help-text">Автосохранение записывает рейс в этот браузер. Чтобы перенести его на другое устройство или оставить отдельную копию, скачайте JSON-файл.</p>
             <p id="save-status" role="status">Прогресс сохраняется в этом браузере.</p>
             <div class="button-row"><button id="exportSaveBtn">Скачать JSON</button><label class="file-button" for="importSaveFile">Загрузить JSON</label><input id="importSaveFile" class="sr-only" type="file" accept=".json,application/json" /></div>
             <button id="restoreSaveBtn" hidden>Применить восстановление</button>
@@ -124,11 +125,17 @@
     <nav id="controls" class="glass" aria-label="Управление полётом">
       <button id="dashboardBtn" aria-controls="dashboard" aria-expanded="true" aria-keyshortcuts="Alt+P" title="Бортовой пульт (Alt+P)">☰ Пульт</button>
       <button id="flightBtn" aria-pressed="false">🚀 На корабль</button>
-      <button id="autopilotBtn" aria-pressed="false" disabled>◎ К цели</button>
+      <button id="autopilotBtn" aria-pressed="false" disabled>◎ Автопилот</button>
       <button id="landBtn" disabled>↓ Посадка</button>
       <button id="contractBtn">Журнал</button>
     </nav>
     <div id="voyage-status" class="glass">ЗЕМЛЯ → МАРС · 100 кр.</div>
+    <button id="savesBtn" class="glass" aria-controls="save-panel">Сохранения</button>
+    <aside id="flight-assist" class="glass" aria-label="Помощь в полёте">
+      <p id="flight-help-message"></p>
+      <p id="flight-fuel-status"></p>
+      <div class="button-row"><button id="assistAutopilotBtn">Автопилот</button><button id="chooseFlightTarget">Выбрать цель</button><button id="resumeFlightBtn" hidden>Снять паузу</button><button id="emergencyFuelBtn" hidden>Аварийный запас · +25%</button></div>
+    </aside>
     <button id="saveWarning" hidden aria-label="Проблема сохранения: открыть настройки"></button>
     <aside id="cruise-progress" class="glass" hidden aria-label="Контрактный круиз">
       <div class="cruise-heading">КУРС НА МАРС <b id="cruise-time">5:00</b></div>
@@ -139,7 +146,7 @@
       <div class="stick-group"><span>ТЯГА / ПОВОРОТ</span><div id="thrust-stick" class="analog-stick" aria-label="Левый стик: тяга и поворот"><i class="stick-thumb"></i></div></div>
       <div class="stick-group"><span>ТАНГАЖ / КРЕН</span><div id="attitude-stick" class="analog-stick" aria-label="Правый стик: тангаж и крен"><i class="stick-thumb"></i></div></div>
     </div>
-    <div id="hint">Выбери цель в пульте · перейди на корабль · включи автопилот</div>
+    <div id="hint">Выберите планету или луну → Автопилот → Посадка · копия рейса: Сохранения</div>
     <div id="cockpit-frame" aria-hidden="true"><i></i><i></i><span>W/S · тяга &nbsp; A/D · рысканье &nbsp; ↑/↓ · тангаж &nbsp; ←/→ · крен</span></div>
     <dialog id="quiz" class="glass">
       <form method="dialog">

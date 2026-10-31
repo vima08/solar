@@ -483,6 +483,17 @@ button:focus-visible, summary:focus-visible, input:focus-visible { outline:2px s
 #contract-journal, #save-status, #import-summary { font-size: 13px; line-height: 1.65; color: #d5eaf6; }
 #contractAction { background: #205945; border-color: #63dba8; }
 #contractAction:not(:disabled) { order: -1; }
+#savesBtn { position: fixed; top: 80px; left: 220px; z-index: 16; padding: 10px 14px; border-radius: 12px; color: #d6efff; font-size: 12px; cursor: pointer; }
+#flight-assist { position: fixed; top: 136px; left: 22px; z-index: 7; width: min(350px, calc(100% - 44px)); padding: 12px; border-radius: 14px; font-size: 12px; line-height: 1.5; max-height: calc(100dvh - 280px); overflow-y: auto; overscroll-behavior: contain; }
+#flight-assist p { margin: 0 0 8px; }
+#flight-assist .button-row { margin-top: 8px; }
+#flight-assist button { padding: 8px 10px; font-size: 11px; }
+#emergencyFuelBtn { order: -1; }
+#resumeFlightBtn { order: -2; }
+#flight-fuel-status { color: #9fc1d7; font-size: 11px; }
+#flight-fuel-status.low-fuel { color: #ffcf86; }
+.dashboard-open #flight-assist { display: none; }
+.simulation-paused #cruise-progress { visibility: hidden; }
 #voyage-status { position: fixed; z-index: 6; top: 80px; left: 22px; padding: 9px 14px; border-radius: 12px; color: #b5e9ff; font-size: 11px; }
 #saveWarning { position: fixed; z-index: 20; top: 126px; left: 12px; max-width: min(350px, calc(100% - 24px)); padding: 12px; border: 1px solid #c69153; border-radius: 12px; background: #382716f2; color: #ffe3b5; font-size: 12px; line-height: 1.5; text-align: left; cursor: pointer; }
 #cruise-progress { position: fixed; z-index: 6; top: 128px; left: 22px; width: min(350px, calc(100% - 44px)); padding: 14px; border-radius: 16px; }
@@ -510,7 +521,9 @@ button, .file-button, summary, .touch-option, .mode { min-width: 44px; min-heigh
 .dashboard-open #cruise-progress { opacity: .15; pointer-events: none; }
 #controls { bottom: max(12px, env(safe-area-inset-bottom)); }
 @media (max-width: 800px) {
-  #voyage-status { top: 62px; left: 12px; max-width: calc(100% - 24px); }
+  #voyage-status { top: 62px; left: 12px; max-width: calc(100% - 150px); }
+  #savesBtn { top: 62px; left: auto; right: 12px; }
+  #flight-assist { top: 122px; left: 12px; width: min(350px, calc(100% - 24px)); }
   #cruise-progress { top: 110px; left: 12px; width: min(350px, calc(100% - 24px)); }
   #controls { display: grid; grid-template-columns: repeat(5, 1fr); overflow: visible; }
   #controls button { padding: 10px 3px; font-size: 11px; white-space: normal; }
@@ -524,6 +537,8 @@ button, .file-button, summary, .touch-option, .mode { min-width: 44px; min-heigh
   .brand b { font-size: 18px; }
   .logo-mark { width: 38px; height: 38px; font-size: 22px; }
   #voyage-status { top: 60px; }
+  #savesBtn { top: 60px; left: 220px; right: auto; }
+  #flight-assist { top: 112px; left: calc(50% - 150px); width: 300px; max-height: calc(100dvh - 202px); padding: 8px; font-size: 11px; }
   #cruise-progress { top: 98px; left: calc(50% - 150px); width: 300px; padding: 10px; }
   #cruise-radio { display: none; }
   #touch-controls { bottom: 85px; }

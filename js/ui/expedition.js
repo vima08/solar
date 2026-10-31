@@ -6,6 +6,7 @@ import { setupContracts } from "./contracts.js";
 import { setupSaveControls } from "./save-controls.js";
 import { createTouchControls } from "./touch-controls.js";
 import { getTime } from "../core/time.js";
+import { autopilotUnavailable, setupFlightAssistance } from "./flight-assistance.js";
 
 const START = new THREE.Vector3(24, 2, 0);
 const SHIP_SCALE = 0.36;
@@ -58,6 +59,18 @@ export function createExpedition(world) {
   });
   const contracts = setupContracts({ store, landedOn: () => landedBody?.config.id ?? null, chooseDestination, save });
   setupSaveControls(store, snapshot, world.bodies);
+  const assistance = setupFlightAssistance({ onAutopilot: toggleAutopilot, onEmergencyFuel: requestEmergencyFuel });
+
+  function requestEmergencyFuel() {
+    if (fuel > 0 || crashed) return;
+    fuel = 25;
+    touch.reset();
+    dispatchEvent(new Event("kosmodrom-input-reset"));
+    updateHud(target.object.getWorldPosition(new THREE.Vector3()).distanceTo(ship.position));
+    syncActions();
+    save();
+    announce("Служба помощи передала аварийный запас топлива: 25%. Груз, деньги и миссии не изменены.");
+  }
 
   function chooseDestination(id) {
     const body = world.bodies.find((item) => item.config.id === id);
@@ -177,11 +190,16 @@ export function createExpedition(world) {
     document.body.classList.toggle("landed-mode", Boolean(landedBody));
     landButton.disabled = !active || Boolean(autopilot) || (!landedBody && !findLandingBody());
     landButton.textContent = landedBody ? "↑ Взлёт" : "↓ Посадка";
-    autopilotButton.disabled = !active || Boolean(landedBody) || !["planet", "moon"].includes(target.type);
+    const flight = { crashed, target, landedOn: landedBody?.config.id ?? null, fuel, autopilot: Boolean(autopilot),
+      contractCruise: Boolean(autopilot?.contract), paused: getTime().paused, nearby: active && !landedBody && !autopilot && Boolean(findLandingBody()) };
+    const block = autopilotUnavailable(flight);
+    autopilotButton.disabled = Boolean(block) && !autopilot;
+    autopilotButton.title = block || (autopilot ? "Остановить переход и вернуть ручное управление" : `Автопилот к цели «${target.config.name}», без расхода топлива`);
     autopilotButton.setAttribute("aria-pressed", String(Boolean(autopilot)));
-    autopilotButton.textContent = autopilot ? "■ Стоп" : "◎ К цели";
+    autopilotButton.textContent = autopilot ? "■ Стоп" : "◎ Автопилот";
     document.getElementById("refuelBtn").disabled = !landedBody || landedBody.config.id !== "earth";
     contracts.render();
+    assistance.render(flight);
   }
 
   function stopAutopilot() {
@@ -193,7 +211,9 @@ export function createExpedition(world) {
 
   function toggleAutopilot() {
     if (autopilot) { stopAutopilot(); save(); return; }
-    if (!active || landedBody || !["planet", "moon"].includes(target.type)) return;
+    if (autopilotUnavailable({ crashed, target, landedOn: landedBody?.config.id ?? null })) return;
+    if (!active) setActive(true);
+    if (landedBody) toggleLanding();
     const center = target.object.getWorldPosition(new THREE.Vector3());
     const from = ship.position.clone().sub(center);
     const normal = from.lengthSq() > 0.001 ? from.clone().normalize() : new THREE.Vector3(0, 1, 0);
@@ -381,6 +401,7 @@ export function createExpedition(world) {
     if (landedBody?.config.id !== "earth") return;
     fuel = 100;
     updateHud(target.object.getWorldPosition(new THREE.Vector3()).distanceTo(ship.position));
+    syncActions();
     save();
   });
   function updateMission() {
@@ -408,10 +429,12 @@ export function createExpedition(world) {
     flightClock.reset(performance.now());
     touch.reset();
     dispatchEvent(new Event("kosmodrom-input-reset"));
+    syncActions();
   });
   ship.visible = !crashed;
   setActive(false);
   updateRoute();
+  document.getElementById("selected").textContent = target.config.name;
   updateHud(target.object.getWorldPosition(new THREE.Vector3()).distanceTo(ship.position));
   return { update, setTarget, save };
 }

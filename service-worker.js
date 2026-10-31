@@ -1,5 +1,5 @@
-const CACHE = "kosmodrom-v9";
-const APP_SHELL = ["./", "./index.html", "./styles.css", "./js/main.js", "./js/ui/expedition.js", "./js/game/contracts.js", "./js/game/save-files.js", "./js/game/save-store.js", "./js/ui/contracts.js", "./js/ui/save-controls.js", "./js/ui/touch-controls.js"];
+const CACHE = "kosmodrom-v10";
+const APP_SHELL = ["./", "./index.html", "./styles.css", "./js/main.js", "./js/ui/expedition.js", "./js/game/contracts.js", "./js/game/save-files.js", "./js/game/save-store.js", "./js/ui/contracts.js", "./js/ui/save-controls.js", "./js/ui/touch-controls.js", "./js/ui/flight-assistance.js"];
 
 self.addEventListener("install", (event) =>
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(APP_SHELL))),
