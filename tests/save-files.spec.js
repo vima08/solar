@@ -58,7 +58,7 @@ test("downloaded JSON imports back after a different state has been loaded", asy
 
 test("bad JSON, future versions and oversized files leave the current save unchanged", async ({ page }) => {
   const before = await page.evaluate((key) => localStorage.getItem(key), key);
-  for (const invalid of ["{broken", { ...file(), version: 999 }, file({ position: ["bad", 1, 2] }), file({ career: { ...career, version: 2 } }), "x".repeat(1024 * 1024 + 1)]) {
+  for (const invalid of ["{broken", { ...file(), version: 999 }, file({ position: ["bad", 1, 2] }), file({ career: { ...career, version: 99 } }), "x".repeat(1024 * 1024 + 1)]) {
     await upload(page, invalid);
     await expect(page.locator("#save-status")).toContainText("Файл не загружен");
     await expect(page.locator("#import-dialog")).toBeHidden();
@@ -68,6 +68,9 @@ test("bad JSON, future versions and oversized files leave the current save uncha
 
 test("failed confirmed import leaves the original snapshot intact without reloading", async ({ page }) => {
   await page.evaluate((key) => { localStorage.setItem(key, JSON.stringify({ fuel: 21 })); }, key);
+  await page.reload();
+  await expect(page.locator("#loading")).toBeHidden();
+  await page.locator("#tab-settings").click();
   const before = await page.evaluate((key) => localStorage.getItem(key), key);
   await upload(page, file());
   await page.evaluate(() => { Storage.prototype.setItem = () => { throw new DOMException("full", "QuotaExceededError"); }; });

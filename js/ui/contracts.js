@@ -1,6 +1,7 @@
 import { CONTRACT, contractTransition } from "../game/contracts.js";
+import { usedSpace } from "../game/cargo.js";
 
-export function setupContracts({ store, landedOn, chooseDestination, save }) {
+export function setupContracts({ store, landedOn, chooseDestination, snapshot }) {
   const action = document.getElementById("contractAction");
   const route = document.getElementById("contractRoute");
   const journal = document.getElementById("contract-journal");
@@ -8,15 +9,15 @@ export function setupContracts({ store, landedOn, chooseDestination, save }) {
   function render() {
     const career = store.state.career;
     const blocked = Boolean(store.issue);
-    const key = JSON.stringify([career.contractStatus, career.credits, career.cargo, Math.ceil(career.flightSeconds), landedOn(), blocked]);
+    const key = JSON.stringify([career.contractStatus, career.credits, usedSpace(career), Math.ceil(career.flightSeconds), landedOn(), blocked]);
     if (key === previous) return;
     previous = key;
     const status = career.contractStatus;
     document.getElementById("credit-count").textContent = String(career.credits);
-    document.getElementById("cargo-count").textContent = `${career.cargo.length} / ${CONTRACT.capacity}`;
+    document.getElementById("cargo-count").textContent = `${usedSpace(career)} / ${CONTRACT.capacity}`;
     const remaining = Math.max(0, Math.ceil(CONTRACT.cruiseSeconds - career.flightSeconds));
     const time = `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, "0")}`;
-    const message = status === "completed" ? "Груз принят на Марсе. +100 кредитов. Контракт завершён; можно продолжить экспедицию к Европе." :
+    const message = status === "completed" ? "Груз принят на Марсе. +100 кредитов. Откройте рынок: на Марсе выгоднее купить руду для Земли, на Земле — компоненты для Марса. Или продолжите экспедицию к Европе." :
       status === "available" ? "Сядьте на Землю и примите контракт. Аппаратура займёт 1 из 2 мест. Награда: 100 кредитов." :
       landedOn() === "mars" ? "Вы на Марсе. Передайте аппаратуру станции и получите награду." :
       `Аппаратура в трюме. Выберите Марс, взлетите, включите автопилот. Остаток круиза: ${time}.`;
@@ -33,18 +34,19 @@ export function setupContracts({ store, landedOn, chooseDestination, save }) {
     if (store.issue) return;
     const next = contractTransition(store.state.career, store.state.career.contractStatus === "available" ? "accept" : "deliver", landedOn());
     if (!next) {
-      const used = store.state.career.cargo.reduce((sum, item) => sum + item.quantity, 0);
+      const used = usedSpace(store.state.career);
       journal.textContent = used >= CONTRACT.capacity ? "В грузовом отсеке недостаточно места для аппаратуры." :
         "Действие недоступно. Проверьте груз и место посадки: получение на Земле, сдача на Марсе.";
       return;
     }
-    store.state.career = next;
-    save();
+    snapshot();
+    store.commit({ ...store.state, career: next });
     render();
   });
   route.addEventListener("click", () => chooseDestination(store.state.career.contractStatus === "available" ? "earth" : "mars"));
   document.getElementById("contractBtn").addEventListener("click", () => dispatchEvent(new CustomEvent("kosmodrom-open-tab", { detail: "missions" })));
   addEventListener("kosmodrom-career-change", render);
+  store.subscribe(render);
   render();
   return { render };
 }

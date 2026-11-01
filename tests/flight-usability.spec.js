@@ -1,3 +1,4 @@
+import { normalizeCareer } from "../js/game/contracts.js";
 import { test, expect } from "@playwright/test";
 
 const key = "kosmodrom-expedition-v1";
@@ -42,7 +43,7 @@ test("empty tank can fly from landed Mars to Europa with one autopilot action an
   const state = await stored(page);
   expect(state.landedOn).toBe("jupiter-moon-2");
   expect(state.deliveryMission).toBe(2);
-  expect(state.career).toEqual(career);
+  expect(state.career).toEqual(normalizeCareer(career).career);
   expect(state.fuel).toBe(0);
 });
 
@@ -56,7 +57,7 @@ test("emergency fuel restores manual flight without moving the ship or changing 
   let state = await stored(page);
   expect(state.fuel).toBe(25);
   expect(state.position).toEqual([24, 20, 0]);
-  expect(state.career).toEqual(active);
+  expect(state.career).toEqual(normalizeCareer(active).career);
   expect(state.samples).toEqual(["mars"]);
   expect(state.deliveryMission).toBe(1);
   await page.reload();

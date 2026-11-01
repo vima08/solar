@@ -27,7 +27,7 @@ test("contract transitions require the right landing and pay once", () => {
 test("career migration repairs cargo without minting money and detects future schemas", () => {
   expect(normalizeCareer(undefined)).toEqual({ career: newCareer(), issue: null });
   for (const invalid of [null, [], { version: "1" }, { version: 0 }]) expect(normalizeCareer(invalid).issue).toBe("damaged");
-  expect(normalizeCareer({ version: 2 }).issue).toBe("future");
+  expect(normalizeCareer({ version: 99 }).issue).toBe("future");
   const damaged = { ...newCareer(), contractStatus: "active", cargo: [], credits: -10, flightSeconds: NaN, extra: "preserve" };
   const repaired = normalizeCareer(damaged);
   expect(repaired.issue).toBe("damaged");

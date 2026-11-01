@@ -26,7 +26,7 @@ export function setupDashboard() {
   });
   addEventListener("keydown", (event) => {
     if (event.altKey && !event.ctrlKey && !event.metaKey && !event.repeat) {
-      const index = ["Digit1", "Digit2", "Digit3", "Digit4"].indexOf(event.code);
+      const index = ["Digit1", "Digit2", "Digit3", "Digit4", "Digit5"].indexOf(event.code);
       if (index !== -1) {
         event.preventDefault();
         selectTab(tabs[index].dataset.tab);

@@ -432,7 +432,7 @@ header {
 #dashboard[hidden], [role="tabpanel"][hidden] { display: none; }
 .dashboard-heading { display:flex; align-items:center; justify-content:space-between; padding:14px 16px 8px; color:#8bb3cd; font-size:10px; letter-spacing:2px; }
 .dashboard-heading button { background:none; border:0; color:#9db7ca; cursor:pointer; font-size:24px; }
-.dashboard-tabs { display:grid; grid-template-columns:repeat(4,1fr); gap:3px; padding:0 10px 10px; border-bottom:1px solid var(--line); }
+.dashboard-tabs { display:grid; grid-template-columns:repeat(5,1fr); gap:3px; padding:0 10px 10px; border-bottom:1px solid var(--line); }
 .dashboard-tabs button { border:0; padding:10px 2px; border-radius:9px; background:transparent; color:#94b0c9; font-size:11px; cursor:pointer; }
 .dashboard-tabs button[aria-selected="true"] { color:#d9f7ff; background:#235270; }
 .dashboard-content { overflow-y:auto; overscroll-behavior:contain; padding:12px; scrollbar-width:thin; scrollbar-color:#44738c transparent; }
@@ -551,3 +551,18 @@ button, .file-button, summary, .touch-option, .mode { min-width: 44px; min-heigh
   #touch-controls { bottom: 85px; }
   .analog-stick { width: 105px; height: 105px; }
 }
+
+/* Market controls fit the dashboard and support touch. */
+.market-card { border:1px solid var(--line); border-radius:12px; padding:12px; margin:12px 0; background:#102139; }
+.market-card h3 { margin:0 0 8px; color:#d9f7ff; }
+.market-card p { font-size:12px; line-height:1.5; margin:8px 0; }
+.market-card .market-reason, #relief-reason { color:#a9bdd1; }
+.market-wallet { color:#8ee4cf; font-weight:700; }
+#panel-market button, #marketBtn, #reloadSaveBtn { min-height:44px; padding:9px 12px; border:1px solid var(--line); border-radius:9px; background:#192d48; color:#d7efff; cursor:pointer; }
+#panel-market button:disabled { opacity:0.45; cursor:default; }
+#market-goods .button-row { display:grid; grid-template-columns:1fr 1fr; }
+#market-goods button { padding:9px 5px; font-size:12px; }
+#market-result { min-height:96px; line-height:24px; }
+.market-stock { min-height:36px; }
+.market-reason { min-height:90px; }
+.dashboard-tabs button { min-height:44px; }

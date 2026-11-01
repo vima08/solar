@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { EXPLOSION_AUDIO } from "../assets/audio-resources.js";
 import { createShipControls, getShipForward } from "./ship-controls.js";
 import { CONTRACT, createFlightClock } from "../game/contracts.js";
+import { setupMarkets } from "./markets.js";
 import { setupContracts } from "./contracts.js";
 import { setupSaveControls } from "./save-controls.js";
 import { createTouchControls } from "./touch-controls.js";
@@ -59,7 +60,8 @@ export function createExpedition(world) {
     consumeFuel: (amount) => { fuel = Math.max(0, fuel - amount); },
     analog: touch.axes,
   });
-  const contracts = setupContracts({ store, landedOn: () => landedBody?.config.id ?? null, chooseDestination, save });
+  const contracts = setupContracts({ store, landedOn: () => landedBody?.config.id ?? null, chooseDestination, snapshot });
+  const markets = setupMarkets({ store, landedOn: () => landedBody?.config.id ?? null, chooseDestination, snapshot });
   setupSaveControls(store, snapshot, world.bodies);
   const assistance = setupFlightAssistance({ onAutopilot: toggleAutopilot, onEmergencyFuel: requestEmergencyFuel });
 
@@ -181,6 +183,7 @@ export function createExpedition(world) {
           "Марс впереди. После прибытия выполните посадку и передайте груз через журнал.";
     }
     contracts.render();
+    markets.render();
     shipCamera.update({ ship, cockpit, body: landedBody?.object ?? null, offset: landedOffset, heading: landedHeading, delta });
     updateHud(distance);
     if (performance.now() - lastSave > 2500) save();
@@ -207,6 +210,7 @@ export function createExpedition(world) {
     autopilotButton.textContent = autopilot ? "■ Стоп" : "◎ Автопилот";
     document.getElementById("refuelBtn").disabled = !landedBody || landedBody.config.id !== "earth";
     contracts.render();
+    markets.render();
     assistance.render(flight);
   }
 

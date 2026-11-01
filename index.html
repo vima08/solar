@@ -33,12 +33,13 @@
       ><span>ЦЕЛЬ<b id="selected">Солнце</b></span>
     </aside>
     <aside id="dashboard" class="glass" aria-label="Бортовой пульт">
-      <div class="dashboard-heading"><span>БОРТОВОЙ ПУЛЬТ · Alt+1…4</span><button id="closeDashboard" aria-label="Закрыть пульт" title="Закрыть пульт (Esc)">×</button></div>
+      <div class="dashboard-heading"><span>БОРТОВОЙ ПУЛЬТ · Alt+1…5</span><button id="closeDashboard" aria-label="Закрыть пульт" title="Закрыть пульт (Esc)">×</button></div>
       <div class="dashboard-tabs" role="tablist" aria-label="Разделы пульта">
         <button id="tab-route" role="tab" aria-selected="true" aria-controls="panel-route" aria-keyshortcuts="Alt+1" data-tab="route">Маршрут</button>
         <button id="tab-ship" role="tab" aria-selected="false" aria-controls="panel-ship" aria-keyshortcuts="Alt+2" data-tab="ship" tabindex="-1">Корабль</button>
         <button id="tab-missions" role="tab" aria-selected="false" aria-controls="panel-missions" aria-keyshortcuts="Alt+3" data-tab="missions" tabindex="-1">Миссии</button>
         <button id="tab-settings" role="tab" aria-selected="false" aria-controls="panel-settings" aria-keyshortcuts="Alt+4" data-tab="settings" tabindex="-1">Настройки</button>
+        <button id="tab-market" role="tab" aria-selected="false" aria-controls="panel-market" aria-keyshortcuts="Alt+5" data-tab="market" tabindex="-1">Рынок</button>
       </div>
       <div class="dashboard-content">
         <section id="panel-route" role="tabpanel" aria-labelledby="tab-route"><details id="planet-nav" class="glass" open>
@@ -75,6 +76,7 @@
             <p id="contract-cargo" class="help-text">Контрактный отсек пуст</p>
             <p id="contract-journal" role="status"></p>
             <div class="button-row"><button id="contractRoute">Маршрут к Земле</button><button id="contractAction" disabled>Принять контракт</button></div>
+            <button id="marketBtn">Торговля · Земля и Марс →</button>
             <p class="help-text">Ориентир: 5–10 минут до награды. В круизе можно отменить автопилот и продолжить позже.</p>
           </article>
           <details id="expedition-panel" open class="glass collapsible-panel">
@@ -97,6 +99,14 @@
         <div class="progress moon-progress"><i id="moon-mission-progress"></i></div>
       </div>
     </details></section>
+        <section id="panel-market" role="tabpanel" aria-labelledby="tab-market" hidden>
+          <h2>Два рынка</h2>
+          <p id="market-port"></p><p id="market-wallet" class="market-wallet"></p>
+          <div class="button-row"><button id="market-route-earth">Маршрут к Земле</button><button id="market-route-mars">Маршрут к Марсу</button></div>
+          <p id="market-result" role="status"></p>
+          <div id="market-goods"></div>
+          <article class="market-card"><h3>Курьерская подработка</h3><p id="relief-status"></p><button id="reliefAction"></button><p id="relief-reason"></p></article>
+        </section>
         <section id="panel-settings" role="tabpanel" aria-labelledby="tab-settings" hidden><details id="sound-panel" open class="glass"><summary>♫ Звук</summary>
       <label>Музыка <input id="musicVolume" data-channel="музыки" type="range" min="0" max="100" /></label>
       <label>Двигатель <input id="engineVolume" data-channel="двигателя" type="range" min="0" max="100" /></label>
@@ -116,6 +126,7 @@
             <p class="help-text">Автосохранение записывает рейс в этот браузер. Чтобы перенести его на другое устройство или оставить отдельную копию, скачайте JSON-файл.</p>
             <p id="save-status" role="status">Прогресс сохраняется в этом браузере.</p>
             <div class="button-row"><button id="exportSaveBtn">Скачать JSON</button><label class="file-button" for="importSaveFile">Загрузить JSON</label><input id="importSaveFile" class="sr-only" type="file" accept=".json,application/json" /></div>
+            <button id="reloadSaveBtn" hidden>Перезагрузить игру</button>
             <button id="restoreSaveBtn" hidden>Применить восстановление</button>
             <p class="help-text">Файл переносит корабль, контракт, деньги, миссии и исследования. Перед заменой появится подтверждение. Настройки звука не переносятся.</p>
             <button id="resetProgressBtn" class="danger-button">Начать заново…</button>

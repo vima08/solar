@@ -7,6 +7,7 @@ This is a static Three.js solar-system explorer using browser ES modules.
 - `index.html` and `styles.css` define the interface; `js/main.js` initializes the application.
 - `js/app/` configures the scene, renderer, camera, controls, and resizing.
 - `js/core/` contains the animation loop, time management, shared constants, and update registration.
+- `js/game/` contains contract and market rules, shared cargo capacity, save validation/migration, and the progress store.
 - `js/world/` creates celestial bodies, effects, and procedural planet textures.
 - `js/ui/` implements navigation, dashboards, quizzes, ship controls, and expeditions.
 - `js/assets/` provides generated audio resources.

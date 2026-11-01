@@ -26,9 +26,11 @@ export function setupSaveControls(store, snapshot, bodies) {
     status.textContent = store.message;
     warning.hidden = !store.issue && !/не сохранён|недоступно|не выполнена|не сброшен/.test(store.message);
     warning.textContent = store.message;
+    document.getElementById("reloadSaveBtn").hidden = store.issue !== "external";
     recovery.hidden = store.issue !== "damaged";
     document.getElementById("exportSaveBtn").textContent = store.issue ? "Скачать исходную копию" : "Скачать JSON";
   });
+  document.getElementById("reloadSaveBtn").addEventListener("click", () => location.reload());
   warning.addEventListener("click", () => dispatchEvent(new CustomEvent("kosmodrom-open-tab", { detail: "settings" })));
   const exportCurrent = () => {
     snapshot();

@@ -31,18 +31,48 @@ export function createSaveStore(bodies, storage = localStorage) {
     issue = issue === "future" ? issue : "damaged";
   }
   if (issue === "future") message = "Это сохранение из более новой версии. Запись отключена, карьера недоступна. Скачайте исходную копию.";
-  if (issue === "damaged") message = "Данные повреждены. Скачайте исходную копию перед восстановлением. До решения прогресс не записывается.";
-  let notify = () => {};
+  if (issue === "damaged") message = "Данные повреждены. Скачайте исходную копию перед восстановлением. Восстановление может удалить повреждённый торговый груз и журнал. До решения прогресс не записывается.";
+  const listeners = new Set();
+  const notify = () => listeners.forEach((callback) => callback());
   const report = (text) => { message = text; notify(); };
+  const external = () => {
+    issue = "external";
+    report("Прогресс изменён в другой вкладке. Запись отключена. Перезагрузите игру, чтобы продолжить.");
+  };
+  const writable = () => {
+    if (retired || issue === "external") return false;
+    if (storage.getItem(SAVE_KEY) !== raw) { external(); return false; }
+    return true;
+  };
+  if (typeof window !== "undefined") {
+    addEventListener("storage", (event) => {
+      if ((event.key === SAVE_KEY || event.key === null) && event.storageArea === storage && event.newValue !== raw) external();
+    });
+  }
   return {
     state,
     get issue() { return issue; },
     get raw() { return raw; },
     get message() { return message; },
-    subscribe(callback) { notify = callback; notify(); },
+    subscribe(callback) { listeners.add(callback); callback(); return () => listeners.delete(callback); },
+    commit(nextState) {
+      if (retired || issue) return false;
+      try {
+        if (!writable()) return false;
+        const next = JSON.stringify(nextState);
+        const copy = JSON.parse(next);
+        storage.setItem(SAVE_KEY, next);
+        for (const key of Object.keys(state)) delete state[key];
+        Object.assign(state, copy);
+        raw = next;
+        report("Прогресс сохранён в браузере.");
+        return true;
+      } catch { report("Прогресс не сохранён: запись недоступна. Сделка отменена; деньги и груз не изменены."); return false; }
+    },
     save() {
       if (retired || issue) return false;
       try {
+        if (!writable()) return false;
         const next = JSON.stringify(state);
         storage.setItem(SAVE_KEY, next);
         raw = next;
@@ -53,7 +83,10 @@ export function createSaveStore(bodies, storage = localStorage) {
     restore() {
       if (issue !== "damaged") return false;
       issue = null;
-      return this.save();
+      if (this.save()) return true;
+      if (!issue) issue = "damaged";
+      notify();
+      return false;
     },
     reset() {
       return this.importState({ career: newCareer(), exploration: { planets: [], moons: [] }, samples: [], deliveryMission: 0, fuel: 100 },
@@ -62,6 +95,7 @@ export function createSaveStore(bodies, storage = localStorage) {
     importState(next, failureMessage = "Загрузка не выполнена: браузер отказал в записи. Текущее сохранение не изменено.") {
       // A single setItem is atomic. Retire the old session before pagehide can write it back.
       try {
+        if (!writable()) return false;
         storage.setItem(SAVE_KEY, JSON.stringify(next));
         retired = true;
         return true;
