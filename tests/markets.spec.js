@@ -96,7 +96,7 @@ test("failed writes preserve money, cargo and journal; another tab freezes every
   await other.close();
 });
 
-test("v2 file roundtrip preserves purchased goods, latest trade and active courier; reset clears all", async ({ page }) => {
+test("current file roundtrip preserves purchased goods, latest trade and active courier; reset clears all", async ({ page }) => {
   test.setTimeout(60000);
   await start(page, { career: { ...career(12), reliefContract: { sequence: 1, status: "active" } } });
   await button(page, "buy", "water").click();
@@ -104,7 +104,7 @@ test("v2 file roundtrip preserves purchased goods, latest trade and active couri
   await page.locator("#savesBtn").click();
   const [download] = await Promise.all([page.waitForEvent("download"), page.locator("#exportSaveBtn").click()]);
   const exported = await readFile(await download.path(), "utf8");
-  expect(JSON.parse(exported).version).toBe(2);
+  expect(JSON.parse(exported).version).toBe(3);
   await page.locator("#resetProgressBtn").click();
   await Promise.all([page.waitForEvent("load"), page.locator("#confirmResetBtn").click()]);
   await expect(page.locator("#loading")).toBeHidden();

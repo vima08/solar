@@ -59,7 +59,8 @@ export function setupSaveControls(store, snapshot, bodies) {
       const next = parseSaveFile(await file.text(), bodies);
       pending = next;
       const labels = { available: "доступен", active: "в пути", completed: "завершён" };
-      document.getElementById("import-summary").textContent = `Баланс: ${next.career.credits} кр. · контракт: ${labels[next.career.contractStatus]} · образцы: ${next.samples?.length ?? 0} · планеты: ${next.exploration.planets.length}. Текущий прогресс будет заменён. После загрузки игра перезапустится.`;
+      const stages = { unheard: "не начата", signal: "сигнал принят", choice: "архив найден", return: "возвращение", completed: "завершена" };
+      document.getElementById("import-summary").textContent = `Баланс: ${next.career.credits} кр. · контракт: ${labels[next.career.contractStatus]} · образцы: ${next.samples?.length ?? 0} · планеты: ${next.exploration.planets.length} · история маяка: ${stages[next.career.discovery.stage]}. Текущий прогресс будет заменён. После загрузки игра перезапустится.`;
       document.getElementById("import-error").textContent = "";
       dispatchEvent(new Event("kosmodrom-input-reset"));
       dialog.showModal();

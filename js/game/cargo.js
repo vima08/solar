@@ -4,7 +4,8 @@ export const PORT_IDS = ["earth", "mars"];
 
 export function usedSpace(career) {
   return career.cargo.reduce((sum, item) => sum + item.quantity, 0) +
-    (career.marketCargo?.length ?? 0) + Number(career.reliefContract?.status === "active");
+    (career.marketCargo?.length ?? 0) + Number(career.reliefContract?.status === "active") +
+    Number(career.discovery?.stage === "return" && career.discovery.choice === "salvage");
 }
 
 export function newEconomy() {

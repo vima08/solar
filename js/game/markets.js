@@ -1,5 +1,5 @@
 import { CAPACITY, PORT_IDS, usedSpace } from "./cargo.js";
-import { normalizeCareer } from "./contracts.js";
+import { CAREER_VERSION, normalizeCareer } from "./contracts.js";
 
 export const PORT_NAMES = { earth: "Земля", mars: "Марс" };
 export const GOODS = [
@@ -9,7 +9,7 @@ export const GOODS = [
 ];
 
 export function trade(career, kind, goodId, landedOn) {
-  if (career?.version !== 2 || normalizeCareer(career).issue) return { error: "Данные карьеры требуют восстановления." };
+  if (career?.version !== CAREER_VERSION || normalizeCareer(career).issue) return { error: "Данные карьеры требуют восстановления." };
   if (!PORT_IDS.includes(landedOn)) return { error: "Для торговли сядьте на Землю или Марс." };
   const good = GOODS.find((item) => item.id === goodId);
   if (!good || !["buy", "sell"].includes(kind)) return { error: "Неизвестный товар или действие." };
@@ -34,7 +34,7 @@ export function trade(career, kind, goodId, landedOn) {
 }
 
 export function reliefTransition(career, action, landedOn, expectedSequence) {
-  if (career?.version !== 2 || normalizeCareer(career).issue) return { error: "Данные карьеры требуют восстановления." };
+  if (career?.version !== CAREER_VERSION || normalizeCareer(career).issue) return { error: "Данные карьеры требуют восстановления." };
   const job = career.reliefContract;
   if (expectedSequence !== job.sequence) return { error: "Условия подработки изменились. Откройте её заново." };
   if (action === "accept") {

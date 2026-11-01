@@ -9,6 +9,8 @@ import { createTouchControls } from "./touch-controls.js";
 import { getTime } from "../core/time.js";
 import { autopilotUnavailable, setupFlightAssistance } from "./flight-assistance.js";
 import { createShipCamera, landingHeading, surfaceFrame } from "./ship-camera.js";
+import { setupDiscovery } from "./discovery.js";
+import { createDiscoveryBeacon } from "../world/discovery-beacon.js";
 
 const START = new THREE.Vector3(24, 2, 0);
 const SHIP_SCALE = 0.36;
@@ -62,6 +64,8 @@ export function createExpedition(world) {
   });
   const contracts = setupContracts({ store, landedOn: () => landedBody?.config.id ?? null, chooseDestination, snapshot });
   const markets = setupMarkets({ store, landedOn: () => landedBody?.config.id ?? null, chooseDestination, snapshot });
+  const discovery = setupDiscovery({ store, landedOn: () => landedBody?.config.id ?? null, chooseDestination, snapshot });
+  const beacon = createDiscoveryBeacon(world.bodies, () => state.career.discovery);
   setupSaveControls(store, snapshot, world.bodies);
   const assistance = setupFlightAssistance({ onAutopilot: toggleAutopilot, onEmergencyFuel: requestEmergencyFuel });
 
@@ -122,6 +126,7 @@ export function createExpedition(world) {
   }
 
   function update(delta) {
+    beacon.update(getTime().elapsed);
     const activeDelta = flightClock.step(performance.now(), active && !getTime().paused && !document.hidden);
     delta = Math.min(delta, 0.05);
     updateExplosions(delta);
@@ -184,6 +189,7 @@ export function createExpedition(world) {
     }
     contracts.render();
     markets.render();
+    discovery.render();
     shipCamera.update({ ship, cockpit, body: landedBody?.object ?? null, offset: landedOffset, heading: landedHeading, delta });
     updateHud(distance);
     if (performance.now() - lastSave > 2500) save();
@@ -211,6 +217,7 @@ export function createExpedition(world) {
     document.getElementById("refuelBtn").disabled = !landedBody || landedBody.config.id !== "earth";
     contracts.render();
     markets.render();
+    discovery.render();
     assistance.render(flight);
   }
 

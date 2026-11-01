@@ -68,6 +68,23 @@
       ><button id="refuelBtn">⛽ Заправить</button>
     </div><p class="help-text">W/S — тяга · A/D — поворот<br>↑/↓ — тангаж · ←/→ — крен</p><p class="help-text">Выберите планету или луну и нажмите «Автопилот» внизу: он доставит к цели без расхода топлива. Затем нажмите «Посадка». Полная заправка доступна на Земле; с пустым баком можно запросить аварийный запас.</p></aside></section>
         <section id="panel-missions" role="tabpanel" aria-labelledby="tab-missions" hidden>
+          <article id="discovery-panel" class="glass" aria-labelledby="discovery-heading" hidden>
+            <div class="discovery-kicker">ПРИКЛЮЧЕНИЕ · ЕВРОПА</div>
+            <h2 id="discovery-heading" tabindex="-1">Тихий маяк</h2>
+            <p id="discovery-chapter"></p>
+            <p id="discovery-wallet"></p>
+            <div id="discovery-text"></div>
+            <p id="discovery-next"></p>
+            <div class="button-row"><button id="discoveryRoute" hidden>Маршрут: Европа →</button><button id="discoveryAction">Расшифровать сигнал</button></div>
+            <p id="discovery-reason"></p>
+            <div id="discovery-choices" hidden>
+              <section class="discovery-option"><h3>Открытый архив</h3><p>Опубликовать данные: +40 кр. сейчас, ещё +30 после сдачи на Земле. Всего70. Трюм свободен. Выбор окончательный.</p><button id="discovery-open" data-choice="open">Опубликовать данные…</button><p id="discovery-open-reason"></p></section>
+              <section class="discovery-option"><h3>Оригинал для «Ареса»</h3><p>Поднять регистратор: 1 место в трюме. Без выплаты сейчас; +110 кр. после сдачи на Марсе. Выбор окончательный.</p><button id="discovery-salvage" data-choice="salvage">Забрать регистратор…</button><p id="discovery-salvage-reason"></p></section>
+            </div>
+            <p id="discovery-error" role="alert"></p>
+            <p id="discovery-ending" hidden>✦ НАХОДКА: тепловая трещина · Европа</p>
+            <details id="discovery-log-panel" hidden><summary>Журнал находки</summary><ol id="discovery-log"></ol></details>
+          </article>
           <article id="contract-panel" class="glass" aria-labelledby="contract-title">
             <div class="contract-kicker">КОНТРАКТ · <span id="contract-status">ДОСТУПЕН</span></div>
             <h2 id="contract-title">Аппаратура для «Ареса»</h2>
@@ -177,9 +194,16 @@
       <div class="button-row"><button id="backupSaveBtn" type="button">Скачать текущий рейс</button><button id="confirmImportBtn" type="button">Заменить и загрузить</button></div>
       <form method="dialog"><button value="cancel">Отмена</button></form>
     </dialog>
+    <dialog id="discovery-dialog" class="glass" aria-labelledby="discovery-choice-heading">
+      <h2 id="discovery-choice-heading">Выбрать судьбу архива?</h2>
+      <p id="discovery-choice-summary"></p>
+      <p id="discovery-choice-error" role="alert"></p>
+      <button id="confirmDiscoveryBtn" type="button">Подтвердить выбор</button>
+      <form method="dialog"><button value="cancel" autofocus>Отмена</button></form>
+    </dialog>
     <dialog id="reset-dialog" class="glass" aria-labelledby="reset-heading">
       <h2 id="reset-heading">Начать заново?</h2>
-      <p>Будут сброшены положение корабля, деньги, груз, контракт, миссии, образцы и исследования. Настройки звука останутся.</p>
+      <p>Будут сброшены положение корабля, деньги, груз, контракт, миссии, образцы, исследования и история маяка с её выбором. Настройки звука останутся.</p>
       <p class="help-text">Скачайте копию текущего рейса: её можно будет загрузить обратно из JSON.</p>
       <p id="reset-error" role="alert"></p>
       <div class="button-row"><button id="resetBackupBtn" type="button">Скачать текущий рейс</button><button id="confirmResetBtn" type="button" class="danger-button">Сбросить прогресс</button></div>

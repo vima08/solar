@@ -13,3 +13,4 @@ build/
 .cache/
 *.log
 specs/002-two-markets/review-evidence/
+specs/003-silent-beacon/review-evidence/

@@ -67,12 +67,13 @@ export function parseSaveFile(text, bodies) {
   if (new TextEncoder().encode(text).byteLength > MAX_SAVE_BYTES) throw new Error("Файл больше 1 МиБ.");
   let envelope;
   try { envelope = JSON.parse(text); } catch { throw new Error("Файл не является корректным JSON."); }
-  if (!object(envelope) || envelope.format !== "kosmodrom-save" || ![1, 2].includes(envelope.version)) throw new Error("Неподдерживаемый формат или версия файла.");
+  if (!object(envelope) || envelope.format !== "kosmodrom-save" || ![1, 2, 3].includes(envelope.version)) throw new Error("Неподдерживаемый формат или версия файла.");
   if (envelope.version === 1 && envelope.expedition?.career?.version > 1) throw new Error("Версия карьеры не соответствует старому формату файла.");
+  if (envelope.version === 2 && envelope.expedition?.career?.version > 2) throw new Error("Версия карьеры не соответствует старому формату файла.");
   return { ...validateExpedition(envelope.expedition, bodies), exploration: validateExploration(envelope.exploration, bodies) };
 }
 
 export function serializeSave(state) {
   const { exploration, ...expedition } = state;
-  return JSON.stringify({ format: "kosmodrom-save", version: expedition.career?.version === 1 ? 1 : 2, expedition, exploration }, null, 2);
+  return JSON.stringify({ format: "kosmodrom-save", version: expedition.career?.version ?? 3, expedition, exploration }, null, 2);
 }

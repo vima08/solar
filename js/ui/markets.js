@@ -39,7 +39,7 @@ export function setupMarkets({ store, landedOn, snapshot, chooseDestination }) {
   function render() {
     const career = store.state.career;
     const port = landedOn();
-    const key = JSON.stringify([career.credits, career.contractStatus, career.cargo, career.marketCargo, career.lastTrade, career.reliefContract, port, store.issue]);
+    const key = JSON.stringify([career.credits, career.contractStatus, career.cargo, career.marketCargo, career.lastTrade, career.reliefContract, career.discovery, port, store.issue]);
     if (previous === key) return;
     previous = key;
     const local = Boolean(PORT_NAMES[port]);

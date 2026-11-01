@@ -1,4 +1,7 @@
 import { newEconomy, usedSpace, validEconomy } from "./cargo.js";
+import { newDiscovery, validDiscovery } from "./discovery-state.js";
+
+export const CAREER_VERSION = 3;
 
 export const CONTRACT = Object.freeze({
   id: "earth-mars-equipment",
@@ -11,7 +14,7 @@ export const CONTRACT = Object.freeze({
 });
 
 export function newCareer() {
-  return { version: 2, credits: 0, contractStatus: "available", cargo: [], flightSeconds: 0, ...newEconomy() };
+  return { version: CAREER_VERSION, credits: 0, contractStatus: "available", cargo: [], flightSeconds: 0, ...newEconomy(), discovery: newDiscovery() };
 }
 
 export function normalizeCareer(value) {
@@ -19,7 +22,7 @@ export function normalizeCareer(value) {
   if (!value || typeof value !== "object" || Array.isArray(value) || !Number.isInteger(value.version) || value.version < 1) {
     return { career: newCareer(), issue: "damaged" };
   }
-  if (value.version > 2) return { career: newCareer(), issue: "future" };
+  if (value.version > CAREER_VERSION) return { career: newCareer(), issue: "future" };
   const validStatus = ["available", "active", "completed"].includes(value.contractStatus);
   const contractStatus = validStatus ? value.contractStatus : "available";
   const validCredits = Number.isSafeInteger(value.credits) && value.credits >= 0;
@@ -27,11 +30,14 @@ export function normalizeCareer(value) {
   const cargo = contractStatus === "active" ? [{ contractId: CONTRACT.id, quantity: 1 }] : [];
   const validCargo = Array.isArray(value.cargo) && value.cargo.length === cargo.length &&
     value.cargo.every((item, index) => item?.contractId === cargo[index].contractId && item.quantity === 1);
-  const career = { ...value, version: 2, credits: validCredits ? value.credits : 0, contractStatus, cargo, flightSeconds: validTime ? value.flightSeconds : 0 };
+  const career = { ...value, version: CAREER_VERSION, credits: validCredits ? value.credits : 0, contractStatus, cargo, flightSeconds: validTime ? value.flightSeconds : 0 };
   if (value.version === 1) Object.assign(career, newEconomy());
+  if (value.version < 3) career.discovery = newDiscovery();
+  const discoveryValid = validDiscovery(career);
+  if (!discoveryValid) career.discovery = newDiscovery();
   const economyValid = validEconomy(career);
   if (!economyValid) Object.assign(career, newEconomy());
-  return { career, issue: validStatus && validCredits && validTime && validCargo && economyValid ? null : "damaged" };
+  return { career, issue: validStatus && validCredits && validTime && validCargo && economyValid && discoveryValid ? null : "damaged" };
 }
 
 export function contractTransition(career, action, landedOn) {

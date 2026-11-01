@@ -17,7 +17,7 @@ export function setupContracts({ store, landedOn, chooseDestination, snapshot })
     document.getElementById("cargo-count").textContent = `${usedSpace(career)} / ${CONTRACT.capacity}`;
     const remaining = Math.max(0, Math.ceil(CONTRACT.cruiseSeconds - career.flightSeconds));
     const time = `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, "0")}`;
-    const message = status === "completed" ? "Груз принят на Марсе. +100 кредитов. Откройте рынок: на Марсе выгоднее купить руду для Земли, на Земле — компоненты для Марса. Или продолжите экспедицию к Европе." :
+    const message = status === "completed" ? "Груз принят на Марсе. +100 кредитов. В журнале появилась история «Тихий маяк». Откройте рынок: на Марсе выгоднее купить руду для Земли, на Земле — компоненты для Марса. Или продолжите экспедицию к Европе." :
       status === "available" ? "Сядьте на Землю и примите контракт. Аппаратура займёт 1 из 2 мест. Награда: 100 кредитов." :
       landedOn() === "mars" ? "Вы на Марсе. Передайте аппаратуру станции и получите награду." :
       `Аппаратура в трюме. Выберите Марс, взлетите, включите автопилот. Остаток круиза: ${time}.`;
