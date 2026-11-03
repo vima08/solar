@@ -1,5 +1,5 @@
-const CACHE = "kosmodrom-v13";
-const APP_SHELL = ["./", "./index.html", "./styles.css", "./js/main.js", "./js/game/discovery-state.js", "./js/game/discovery.js", "./js/ui/discovery.js", "./js/world/discovery-beacon.js", "./js/ui/expedition.js", "./js/game/contracts.js", "./js/game/cargo.js", "./js/game/markets.js", "./js/ui/markets.js", "./js/game/save-files.js", "./js/game/save-store.js", "./js/ui/contracts.js", "./js/ui/save-controls.js", "./js/ui/touch-controls.js", "./js/ui/flight-assistance.js", "./js/ui/ship-camera.js"];
+const CACHE = "kosmodrom-v14";
+const APP_SHELL = ["./", "./index.html", "./styles.css", "./js/main.js", "./js/game/defense-state.js", "./js/game/defense.js", "./js/ui/defense.js", "./js/game/flyby.js", "./js/ui/flight-lab.js", "./js/game/discovery-state.js", "./js/game/discovery.js", "./js/ui/discovery.js", "./js/world/discovery-beacon.js", "./js/ui/expedition.js", "./js/game/contracts.js", "./js/game/cargo.js", "./js/game/markets.js", "./js/ui/markets.js", "./js/game/save-files.js", "./js/game/save-store.js", "./js/ui/contracts.js", "./js/ui/save-controls.js", "./js/ui/touch-controls.js", "./js/ui/flight-assistance.js", "./js/ui/ship-camera.js"];
 
 self.addEventListener("install", (event) =>
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(APP_SHELL))),

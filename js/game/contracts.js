@@ -1,7 +1,8 @@
 import { newEconomy, usedSpace, validEconomy } from "./cargo.js";
 import { newDiscovery, validDiscovery } from "./discovery-state.js";
+import { newDefense, validDefense } from "./defense-state.js";
 
-export const CAREER_VERSION = 3;
+export const CAREER_VERSION = 4;
 
 export const CONTRACT = Object.freeze({
   id: "earth-mars-equipment",
@@ -14,7 +15,7 @@ export const CONTRACT = Object.freeze({
 });
 
 export function newCareer() {
-  return { version: CAREER_VERSION, credits: 0, contractStatus: "available", cargo: [], flightSeconds: 0, ...newEconomy(), discovery: newDiscovery() };
+  return { version: CAREER_VERSION, credits: 0, contractStatus: "available", cargo: [], flightSeconds: 0, ...newEconomy(), discovery: newDiscovery(), defense: newDefense() };
 }
 
 export function normalizeCareer(value) {
@@ -33,11 +34,14 @@ export function normalizeCareer(value) {
   const career = { ...value, version: CAREER_VERSION, credits: validCredits ? value.credits : 0, contractStatus, cargo, flightSeconds: validTime ? value.flightSeconds : 0 };
   if (value.version === 1) Object.assign(career, newEconomy());
   if (value.version < 3) career.discovery = newDiscovery();
+  if (value.version < 4) career.defense = newDefense();
   const discoveryValid = validDiscovery(career);
   if (!discoveryValid) career.discovery = newDiscovery();
   const economyValid = validEconomy(career);
   if (!economyValid) Object.assign(career, newEconomy());
-  return { career, issue: validStatus && validCredits && validTime && validCargo && economyValid && discoveryValid ? null : "damaged" };
+  const defenseValid = validDefense(career);
+  if (!defenseValid) career.defense = newDefense();
+  return { career, issue: validStatus && validCredits && validTime && validCargo && economyValid && discoveryValid && defenseValid ? null : "damaged" };
 }
 
 export function contractTransition(career, action, landedOn) {

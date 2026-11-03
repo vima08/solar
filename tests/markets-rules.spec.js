@@ -81,7 +81,7 @@ test("legacy saves migrate and v2 economic corruption is gated locally and rejec
   expect(normalizeCareer(legacy)).toEqual({ career: { ...funded(), flightSeconds: 300 }, issue: null });
   const state = { career: reliefTransition(funded(0), "accept", "earth", 0).career, exploration: { planets: ["earth"], moons: [] } };
   state.career = trade({ ...state.career, credits: 12 }, "buy", "water", "earth").career;
-  expect(JSON.parse(serializeSave(state)).version).toBe(3);
+  expect(JSON.parse(serializeSave(state)).version).toBe(4);
   expect(parseSaveFile(serializeSave(state), bodies)).toEqual(state);
   for (const patch of [
     { marketCargo: [{ goodId: "unknown", purchasePrice: 1 }] },

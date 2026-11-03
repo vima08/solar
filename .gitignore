@@ -14,3 +14,5 @@ build/
 *.log
 specs/002-two-markets/review-evidence/
 specs/003-silent-beacon/review-evidence/
+specs/004-meteor-defense/review-evidence/
+specs/005-flight-lab/review-evidence/

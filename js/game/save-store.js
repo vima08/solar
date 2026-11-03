@@ -31,7 +31,7 @@ export function createSaveStore(bodies, storage = localStorage) {
     issue = issue === "future" ? issue : "damaged";
   }
   if (issue === "future") message = "Это сохранение из более новой версии. Запись отключена, карьера недоступна. Скачайте исходную копию.";
-  if (issue === "damaged") message = "Данные повреждены. Скачайте исходную копию перед восстановлением. Восстановление может сбросить повреждённые данные торговли и истории маяка, включая выбор и регистратор. До решения прогресс не записывается.";
+  if (issue === "damaged") message = "Данные повреждены. Скачайте исходную копию перед восстановлением. Восстановление может сбросить повреждённые данные торговли, маяка и дежурства. До решения прогресс не записывается.";
   const listeners = new Set();
   const notify = () => listeners.forEach((callback) => callback());
   const report = (text) => { message = text; notify(); };

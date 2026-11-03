@@ -28,7 +28,7 @@ test("shows the complete interactive planet navigator", async ({ page }) => {
   await expect(page.locator("#planet-list .destination-group")).toHaveCount(3);
   await expect(page.locator(".space-label")).toHaveCount(15);
   await expect(page.locator('[data-object="comet"]')).toHaveCount(2);
-  await expect(page.locator("canvas")).toBeVisible();
+  await expect(page.locator("#scene-container canvas")).toBeVisible();
 });
 
 test("collapses and expands the destination list", async ({ page }) => {

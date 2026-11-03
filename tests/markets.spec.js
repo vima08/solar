@@ -104,7 +104,7 @@ test("current file roundtrip preserves purchased goods, latest trade and active 
   await page.locator("#savesBtn").click();
   const [download] = await Promise.all([page.waitForEvent("download"), page.locator("#exportSaveBtn").click()]);
   const exported = await readFile(await download.path(), "utf8");
-  expect(JSON.parse(exported).version).toBe(3);
+  expect(JSON.parse(exported).version).toBe(4);
   await page.locator("#resetProgressBtn").click();
   await Promise.all([page.waitForEvent("load"), page.locator("#confirmResetBtn").click()]);
   await expect(page.locator("#loading")).toBeHidden();

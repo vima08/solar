@@ -33,13 +33,14 @@
       ><span>ЦЕЛЬ<b id="selected">Солнце</b></span>
     </aside>
     <aside id="dashboard" class="glass" aria-label="Бортовой пульт">
-      <div class="dashboard-heading"><span>БОРТОВОЙ ПУЛЬТ · Alt+1…5</span><button id="closeDashboard" aria-label="Закрыть пульт" title="Закрыть пульт (Esc)">×</button></div>
+      <div class="dashboard-heading"><span>БОРТОВОЙ ПУЛЬТ · Alt+1…6</span><button id="closeDashboard" aria-label="Закрыть пульт" title="Закрыть пульт (Esc)">×</button></div>
       <div class="dashboard-tabs" role="tablist" aria-label="Разделы пульта">
         <button id="tab-route" role="tab" aria-selected="true" aria-controls="panel-route" aria-keyshortcuts="Alt+1" data-tab="route">Маршрут</button>
         <button id="tab-ship" role="tab" aria-selected="false" aria-controls="panel-ship" aria-keyshortcuts="Alt+2" data-tab="ship" tabindex="-1">Корабль</button>
         <button id="tab-missions" role="tab" aria-selected="false" aria-controls="panel-missions" aria-keyshortcuts="Alt+3" data-tab="missions" tabindex="-1">Миссии</button>
         <button id="tab-settings" role="tab" aria-selected="false" aria-controls="panel-settings" aria-keyshortcuts="Alt+4" data-tab="settings" tabindex="-1">Настройки</button>
         <button id="tab-market" role="tab" aria-selected="false" aria-controls="panel-market" aria-keyshortcuts="Alt+5" data-tab="market" tabindex="-1">Рынок</button>
+        <button id="tab-course" role="tab" aria-selected="false" aria-controls="panel-course" aria-keyshortcuts="Alt+6" data-tab="course" tabindex="-1">Курс</button>
       </div>
       <div class="dashboard-content">
         <section id="panel-route" role="tabpanel" aria-labelledby="tab-route"><details id="planet-nav" class="glass" open>
@@ -68,6 +69,11 @@
       ><button id="refuelBtn">⛽ Заправить</button>
     </div><p class="help-text">W/S — тяга · A/D — поворот<br>↑/↓ — тангаж · ←/→ — крен</p><p class="help-text">Выберите планету или луну и нажмите «Автопилот» внизу: он доставит к цели без расхода топлива. Затем нажмите «Посадка». Полная заправка доступна на Земле; с пустым баком можно запросить аварийный запас.</p></aside></section>
         <section id="panel-missions" role="tabpanel" aria-labelledby="tab-missions" hidden>
+          <article id="defense-panel" class="glass" hidden>
+            <div class="discovery-kicker">ПЛАНЕТАРНАЯ ОБОРОНА · МАРС</div><h2>Дежурство над «Аресом»</h2>
+            <p id="defense-journal"></p><p id="defense-port-reason"></p>
+            <div class="button-row"><button id="defenseRoute">Маршрут к Марсу</button><button id="defenseOpen">Открыть батарею</button><button id="defensePractice" hidden>Учение без наград</button></div>
+          </article>
           <article id="discovery-panel" class="glass" aria-labelledby="discovery-heading" hidden>
             <div class="discovery-kicker">ПРИКЛЮЧЕНИЕ · ЕВРОПА</div>
             <h2 id="discovery-heading" tabindex="-1">Тихий маяк</h2>
@@ -123,6 +129,20 @@
           <p id="market-result" role="status"></p>
           <div id="market-goods"></div>
           <article class="market-card"><h3>Курьерская подработка</h3><p id="relief-status"></p><button id="reliefAction"></button><p id="relief-reason"></p></article>
+        </section>
+        <section id="panel-course" role="tabpanel" aria-labelledby="tab-course" hidden>
+          <h2>Лаборатория манёвра</h2>
+          <p class="help-text">Учебный прогноз в условных единицах. Реальный корабль остаётся на месте, автопилот работает как прежде. Радиус планеты R=1, сила гравитации μ=1; другие тела и тяга здесь не моделируются.</p>
+          <canvas id="flyby-canvas" width="600" height="240" role="img" aria-label="Прогноз пролёта рядом с планетой"></canvas>
+          <p class="help-text">Золотой/красный — с гравитацией · серый пунктир — прямой курс. Рисунок в системе планеты.</p>
+          <div id="flyby-presets" class="button-row"></div>
+          <label class="flyby-control" for="flyby-speed">Относительная скорость · <output id="flyby-speed-value">0.70</output><input id="flyby-speed" type="range" min="0.45" max="1.4" step="0.05" value="0.7" /></label>
+          <label class="flyby-control" for="flyby-offset">Смещение курса · <output id="flyby-offset-value">3.50</output> R<input id="flyby-offset" type="range" min="1.2" max="6" step="0.1" value="3.5" /></label>
+          <label class="flyby-control" for="flyby-planet-speed">Скорость планеты вдоль Y · <output id="flyby-planet-speed-value">0.00</output><input id="flyby-planet-speed" type="range" min="-0.5" max="0.5" step="0.05" value="0" /></label>
+          <p id="flyby-status" role="status"></p>
+          <dl class="flyby-metrics"><dt>Сближение с центром</dt><dd id="flyby-closest"></dd><dt>Поворот курса</dt><dd id="flyby-angle"></dd><dt>Скорость у планеты: вход → выход</dt><dd id="flyby-relative"></dd><dt>Скорость у станции: вход → выход</dt><dd id="flyby-station"></dd><dt>Изменение скорости у станции</dt><dd id="flyby-gain"></dd></dl>
+          <p class="help-text">Вход и выход сравниваются на одинаковом расстоянии. В системе планеты энергия сохраняется. Движение планеты относительно условной станции меняет результат: прибавляется её скорость вдоль Y. Это не прогноз реального рейса.</p>
+          <p id="flyby-time"></p><div class="button-row"><button id="flybyPlay">Проиграть манёвр</button><button id="flybyReset">Сбросить параметры</button></div>
         </section>
         <section id="panel-settings" role="tabpanel" aria-labelledby="tab-settings" hidden><details id="sound-panel" open class="glass"><summary>♫ Звук</summary>
       <label>Музыка <input id="musicVolume" data-channel="музыки" type="range" min="0" max="100" /></label>
@@ -193,6 +213,14 @@
       <p id="import-error" role="alert"></p>
       <div class="button-row"><button id="backupSaveBtn" type="button">Скачать текущий рейс</button><button id="confirmImportBtn" type="button">Заменить и загрузить</button></div>
       <form method="dialog"><button value="cancel">Отмена</button></form>
+    </dialog>
+    <dialog id="defense-dialog" class="glass" aria-labelledby="defense-heading">
+      <div class="defense-heading"><div><p id="defense-mode"></p><h2 id="defense-heading">Батарея «Ареса»</h2></div><button id="defenseClose" type="button">Закрыть и приостановить</button></div>
+      <p class="help-text">Выберите ближайшую угрозу и нажмите «Огонь». Упреждение автоматическое. Перезарядка — 2 с. Попадание снимает 1 HP. Пропущенный метеорит уменьшит только награду; прежние деньги и груз сохранятся.</p>
+      <canvas id="defense-canvas" width="900" height="340" role="img" aria-label="Тактический экран: метеориты приближаются к станции. Выбор целей также доступен кнопками ниже."></canvas>
+      <div class="defense-targets"><button data-meteor="0" aria-pressed="true">Искра</button><button data-meteor="1" aria-pressed="false">Осколок</button><button data-meteor="2" aria-pressed="false">Глыба</button></div>
+      <p id="defense-clock"></p><p id="defense-result" role="status"></p><p id="defense-error" role="alert"></p>
+      <div class="button-row"><button id="defensePlay">Начать дежурство · 42 с</button><button id="defenseFire" disabled>Огонь по выбранной цели</button><button id="defenseClaim" hidden>Получить награду</button></div>
     </dialog>
     <dialog id="discovery-dialog" class="glass" aria-labelledby="discovery-choice-heading">
       <h2 id="discovery-choice-heading">Выбрать судьбу архива?</h2>

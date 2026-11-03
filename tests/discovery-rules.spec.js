@@ -79,7 +79,7 @@ test("career1 and career2 files migrate without changing trade, courier or money
   delete legacy2.discovery;
   for (const legacy of [legacy1, legacy2]) {
     const expected = normalizeCareer(legacy).career;
-    expect(expected.version).toBe(3);
+    expect(expected.version).toBe(4);
     expect(expected.discovery).toEqual({ stage: "unheard", choice: null });
     expect(expected.credits).toBe(legacy.credits);
     expect(expected.marketCargo).toEqual(legacy.marketCargo ?? []);
@@ -94,7 +94,7 @@ test("career1 and career2 files migrate without changing trade, courier or money
   }
   for (const career of states) {
     const state = { career, exploration: { planets: ["earth"], moons: [EUROPA] } };
-    expect(JSON.parse(serializeSave(state)).version).toBe(3);
+    expect(JSON.parse(serializeSave(state)).version).toBe(4);
     expect(parseSaveFile(serializeSave(state), bodies)).toEqual(state);
   }
   const migratedCourier = normalizeCareer({ ...legacy2, credits: 0, marketCargo: [], reliefContract: { status: "active", sequence: 2 } }).career;
@@ -109,14 +109,14 @@ test("malformed story, overcapacity and future versions are gated with original 
     { ...initial(), discovery: { stage: "return", choice: null } },
     { ...newCareer(), discovery: { stage: "choice", choice: null } },
     { ...step(found(), "salvage", EUROPA), marketCargo: Array(2).fill({ goodId: "water", purchasePrice: 12 }) },
-    { ...initial(), version: 4 },
+    { ...initial(), version: 99 },
   ];
   for (const career of states) {
     const state = { career, exploration: { planets: [], moons: [] } };
     const raw = JSON.stringify(state);
     let writes = 0;
     const store = createSaveStore(bodies, { getItem: () => raw, setItem() { writes++; } });
-    expect(store.issue).toBe(career.version === 4 ? "future" : "damaged");
+    expect(store.issue).toBe(career.version === 99 ? "future" : "damaged");
     expect(store.raw).toBe(raw);
     expect(store.save()).toBe(false);
     expect(store.commit({ career: initial() })).toBe(false);

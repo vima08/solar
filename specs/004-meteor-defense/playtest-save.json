@@ -1,0 +1,49 @@
+{
+  "format": "kosmodrom-save",
+  "version": 4,
+  "expedition": {
+    "landedOn": "mars",
+    "target": "mars",
+    "fuel": 100,
+    "deliveryMission": 1,
+    "samples": [
+      "earth",
+      "mars"
+    ],
+    "career": {
+      "version": 4,
+      "credits": 100,
+      "contractStatus": "completed",
+      "cargo": [],
+      "flightSeconds": 300,
+      "marketCargo": [],
+      "lastTrade": null,
+      "reliefContract": {
+        "sequence": 0,
+        "status": "idle"
+      },
+      "discovery": {
+        "stage": "unheard",
+        "choice": null
+      },
+      "defense": {
+        "stage": "available",
+        "elapsed": 0,
+        "cooldown": 0,
+        "hp": [
+          2,
+          3,
+          2
+        ],
+        "shots": 0
+      }
+    }
+  },
+  "exploration": {
+    "planets": [
+      "earth",
+      "mars"
+    ],
+    "moons": []
+  }
+}
